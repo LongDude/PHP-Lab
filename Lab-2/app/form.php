@@ -41,16 +41,16 @@
       if (($file = fopen($csvFile, 'a')) !== false) {
         fputcsv($file, $dataRow);
         fclose($file);
-        $msg = 'Данные успешно проданы пендосам';
+        $msg = "Данные успешно проданы пендосам";
         http_response_code(200);
       } else {
         http_response_code(500);
-        $err = 'Ошибка при сохранении';
+        $err = "Ошибка при сохранении";
       }
     }
     else {
       http_response_code(400);
-      $msg = 'Неккоректно заполнены поля';
+      $msg = "Неккоректно заполнены поля";
     }
     echo json_encode(array('err' => $err,'msg'=> $msg));
   }

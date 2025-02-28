@@ -11,7 +11,6 @@
   <main>
     <h1>"Туда-Сюда" и уже приехали!</h1>
       <form>
-
         <div>
           <label for="name">Имя:</label>
           <input type='text' name="name" id="name">
@@ -25,13 +24,13 @@
         
         <div>
         <label for="car_registration">Номера машины:</label>
-        <input type="text" name="car_registration" id="car-registration"> 
+        <input type="text" name="car_registration" id="car_registration"> 
         <label for="phone" class="input-info">4-8 символов латиницей/арабских цифр, без пробелов</label>
       </div>
       
       <div>
         <label for="tarifs"> Тариф:</label>
-        <input type="number" name="tarifs" min="100" max="5000" id="tarifs"> 
+        <input type="text" name="tarifs" min="100" max="5000" id="tarifs"> 
         <label for="phone" class="input-info">От 100 до 5000</label>
       </div>
       

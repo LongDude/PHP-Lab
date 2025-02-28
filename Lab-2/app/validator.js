@@ -1,11 +1,12 @@
 const inpName = document.getElementById('name')
 const inpPhone = document.getElementById('phone')
-const inpRegistr = document.getElementById('car-registration')
+const inpRegistr = document.getElementById('car_registration')
 const inpTariffs = document.getElementById('tarifs')
 const btnSubmit = document.getElementById('submit')
 const form = document.querySelector('form')
 
 btnSubmit.addEventListener('click', send_form)
+form.addEventListener('submit', (event) => event.preventDefault())
 // Валидация на полях
 let validForms = 0b0000
 inpName.addEventListener('input', (event) => {
@@ -29,7 +30,7 @@ inpPhone.addEventListener('input', (event) => {
         validForms &= 0b1011
     } else {
         validForms |= 0b0100
-        event.target.valud = `+${m[1]}`
+        event.target.value = `+${m[1]}`
         + (m[2] ? ` (${m[2]}` : '')
         + (m[3] ? `) ${m[3]}` : '')
         + (m[4] ? `-${m[4]}` : '')
@@ -40,13 +41,13 @@ inpPhone.addEventListener('input', (event) => {
 
 inpRegistr.addEventListener('input', (event) => {
     let val = inpRegistr.value
-    let m = val.match(/[A-Z0-9]/)
+    let m = val.match(/[0-9A-Z]{1,8}/)
     if (!m){
         validForms &= 0b1101
         event.target.value = ''
     } else {
         validForms |= 0b0010
-        event.target.value = $m[0]
+        event.target.value = m[0]
     }
     toggleForm()
 })
@@ -54,12 +55,12 @@ inpRegistr.addEventListener('input', (event) => {
 inpTariffs.addEventListener('input', (event) => {
     let val = inpTariffs.value
     let m = val.match(/\d+/)
-    if (!m){
+    if (!m || val.length == 0){
         validForms &= 0b1110
         event.target.value = ''
     } else {
         validForms |= 0b0001
-        event.target.value = $m[0]
+        event.target.value = m[0]
     }
     toggleForm()
 })
@@ -72,7 +73,7 @@ function toggleForm(){
     }
 }
 
-function send_form() {
+async function send_form() {
     // валидация введенных значений
     let isValid = true
 
@@ -80,7 +81,6 @@ function send_form() {
     inpName.nextElementSibling.classList.remove('invalid-info')
 
     inpPhone.classList.remove('invalid')
-    inpPhone.nextElementSibling.classList.remove('invalid-info')
 
     inpRegistr.classList.remove('invalid')
     inpRegistr.nextElementSibling.classList.remove('invalid-info')
@@ -99,7 +99,6 @@ function send_form() {
     if (inpPhone.value.replaceAll(/\D+/g, '').substring(0, 11).length < 11){
         isValid = false
         inpPhone.classList.add('invalid')
-        inpPhone.nextElementSibling.classList.add('invalid-info')
     }
 
     // Проверка регистрационного номера
@@ -110,7 +109,7 @@ function send_form() {
     }
 
     // проверка тарифа
-    if (parseInt(inpTariffs.value) < 100 || parseInt(inpTariffs.value) > 5000){
+    if (inpTariffs.value.length <= 0 || parseInt(inpTariffs.value) < 100 || parseInt(inpTariffs.value) > 5000){
         isValid = false
         inpTariffs.classList.add('invalid')
         inpTariffs.nextElementSibling.classList.add('invalid-info')        
@@ -118,13 +117,14 @@ function send_form() {
     
     // отправка формы
     if (!isValid) return
-
-    fetch('form.php', {
+    await fetch('form.php', {
         method: 'POST',
         body: new FormData(form)
-    }).then((response) => {
-        console.log(response)
-        alert(response)
+    }).then(async (response) => {
+        let res = await response.json()
+        console.log(res)
+        alert(res['msg'])
+        console.log(`Status: ${response.status}, error: ${res['err']}`)
     }).catch((error) => {
         console.log(error)
         alert('Ошибка')
