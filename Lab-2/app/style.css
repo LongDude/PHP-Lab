@@ -49,6 +49,10 @@ input, label {
 
 }
 
+.invalid-info {
+    color: red !important;
+}
+
 .input-info {
     color: yellow;
     font-size: 0.9rem;

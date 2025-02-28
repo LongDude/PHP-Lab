@@ -1,6 +1,6 @@
 <?php
   session_start();
-  header('Location: ./index.php');
+  header('Content-type: application/json');
   
   if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $name = trim($_POST['name'] ?? '');
@@ -8,31 +8,31 @@
     $car_registration = trim($_POST['car_registration'] ?? '');
     $tariffs = trim($_POST['tarifs'] ?? 0);    
     $correct = true;
+    $msg = "Ошибка";
+    $err = "";
 
     // Валидация имени
-    if (!preg_match("/^[ а-яА-Яa-zA-Z]{1,50}$/", $name)){
+    if (!preg_match("/^[a-zA-Zа-яА-Я][a-zA-Zа-яА-Я ]{3,49}\$/", $name)){
+      $err .= "INVALID NAME\n";
       $correct = false;
-      print($name);
-      $_SESSION["inv_name"] = "Неккоректный формат имени";
-    } else {unset($_SESSION["inv_name"]);}
-
+    }
     // Валидация номера телефона
     if (!preg_match("/\+7 \([0-9]{3}\) [0-9]{3}-[0-9]{2}-[0-9]{2}/", $phone)){
+      $err .= "INVALID PHONE\n";
       $correct = false;
-      $_SESSION["inv_phone"] = "Неккоректный формат номера";
-    } else {unset($_SESSION["inv_phone"]);}
+    }
 
     // Валидация регистрационного номера машины
-    if (!preg_match("/^[a-zA-Z0-9]{4,8}$/", $car_registration)){
+    if (!preg_match("/^[A-Z0-9]{4,8}$/", $car_registration)){
+      $err .= "INVALID REGISTRATION\n";
       $correct = false;
-      $_SESSION["inv_registration"] = "Неккоректный формат регистрационного номера";
-    } else {unset($_SESSION["inv_registration"]);}
+    }
 
     // Валидация тарифа
-    if (!(preg_match("/^\d+$/", $tariffs) && 0 < $tariffs && $tariffs <= 5000)){
+    if (!(preg_match("/^\d+$/", $tariffs) && 100 <= $tariffs && $tariffs <= 5000)){
+      $err .= "INVALID TARIFF\n";
       $correct = false;
-      $_SESSION["inv_tariffs"] = "Неккоректный тариф";
-    } else {unset($_SESSION["inv_tariffs"]);}
+    }
 
     if ($correct){
       $csvFile = 'data.csv';
@@ -41,14 +41,17 @@
       if (($file = fopen($csvFile, 'a')) !== false) {
         fputcsv($file, $dataRow);
         fclose($file);
-        $message = 'Данные успешно проданы пендосам';
+        $msg = 'Данные успешно проданы пендосам';
+        http_response_code(200);
       } else {
-        $message = 'Ошибка при сохранении';
+        http_response_code(500);
+        $err = 'Ошибка при сохранении';
       }
-      $_SESSION['message'] = $message;
     }
     else {
-      $_SESSION['message'] = "Некоторые поля неккоректно заполнены";
+      http_response_code(400);
+      $msg = 'Неккоректно заполнены поля';
     }
+    echo json_encode(array('err' => $err,'msg'=> $msg));
   }
 ?>
