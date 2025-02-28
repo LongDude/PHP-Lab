@@ -13,9 +13,9 @@ inpName.addEventListener('input', (event) => {
     let m = val.match(/^(?:[a-zA-Zа-яА-Я]+\ ?)+/)
     if (!m){
         event.target.value = ''
-        filledForms &= 0b0111
+        validForms &= 0b0111
     } else {
-        filledForms |= 0b1000
+        validForms |= 0b1000
         event.target.value = m[0].substring(0, 50)
     }
     toggleForm()
@@ -26,9 +26,9 @@ inpPhone.addEventListener('input', (event) => {
     let m = val.match(/(\d)(\d{1,3})?(\d{1,3})?(\d{1,2})?(\d{1,2})?/)
     if (!m){
         event.target.value = ''
-        filledForms &= 0b1011
+        validForms &= 0b1011
     } else {
-        filledForms |= 0b0100
+        validForms |= 0b0100
         event.target.valud = `+${m[1]}`
         + (m[2] ? ` (${m[2]}` : '')
         + (m[3] ? `) ${m[3]}` : '')
@@ -42,10 +42,10 @@ inpRegistr.addEventListener('input', (event) => {
     let val = inpRegistr.value
     let m = val.match(/[A-Z0-9]/)
     if (!m){
-        filledForms &= 0b1101
+        validForms &= 0b1101
         event.target.value = ''
     } else {
-        filledForms |= 0b0010
+        validForms |= 0b0010
         event.target.value = $m[0]
     }
     toggleForm()
@@ -55,10 +55,10 @@ inpTariffs.addEventListener('input', (event) => {
     let val = inpTariffs.value
     let m = val.match(/\d+/)
     if (!m){
-        filledForms &= 0b1110
+        validForms &= 0b1110
         event.target.value = ''
     } else {
-        filledForms |= 0b0001
+        validForms |= 0b0001
         event.target.value = $m[0]
     }
     toggleForm()
