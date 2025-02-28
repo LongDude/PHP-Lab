@@ -38,6 +38,20 @@ form {
 
 input, label {
     display: block;
+    width: 100%;
+}
+
+.invalid {
+    border: 2px solid #d82929;
+    -webkit-box-shadow:0px 0px 14px 2px #d82929;
+    -moz-box-shadow: 0px 0px 14px 2px #d82929;
+    box-shadow: 0px 0px 14px 2px #d82929;
+
+}
+
+.input-info {
+    color: yellow;
+    font-size: 0.9rem;
 }
 
 #submit {

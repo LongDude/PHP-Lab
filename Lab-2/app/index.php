@@ -1,3 +1,5 @@
+<?php session_start()?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,22 +11,41 @@
   <main>
     <h1>"Туда-Сюда" и уже приехали!</h1>
 
-    
-    <?php if (!empty($message)): ?>
-      <p><?php echo $message; ?></p>
-      <?php endif; ?>
+      <?php         
+        if (isset($_SESSION["message"])) {
+          $msg = $_SESSION["message"]; 
+          echo "<script type='text/javascript'>alert('$msg');</script>";
+          unset($_SESSION["message"]);
+        }
+      ?>
       
       <form action="form.php" method="POST">
-        <label for="name">Имя:</label>
-        <input type='text' name="name" id="name">
-        <label for="phone">Контакстный номер:</label>
-        <input type="text" name="phone" id="phone" pattern="+[0-9]{1,11}">
-        <label for="car_registration">Номера машины:</label>
-        <input type="text" name="car_registration" pattern="\S{1,6}" id="tarifs"> 
-        <label for="tarifs"> Тариф:</label>
-        <input type="text" name="tarifs" pattern="[0-9]{1,4}" id="tarifs"> 
+        <div>
+          <label for="name">Имя:</label>
+          <input type='text' name="name" id="name" <?php if (isset($_SESSION['inv_name'])) echo 'class="invalid"';?>>
+          <label for="name" class="input-info">1-50 кириллических символов</label>
+        </div>
+
+        <div>
+          <label for="phone">Контакстный номер:</label>
+          <input type="text" name="phone" placeholder="+7 (999) 999-99-99" id="phone" <?php if (isset($_SESSION['inv_phone'])) echo 'class="invalid"';?>>
+        </div>
+        
+        <div>
+          <label for="car_registration">Номера машины:</label>
+          <input type="text" name="car_registration" id="car-registration" <?php if (isset($_SESSION['inv_registration'])) echo 'class="invalid"';?>> 
+          <label for="phone" class="input-info">4-8 символов латиницей/арабских цифр, без пробелов</label>
+        </div>
+        
+        <div>
+          <label for="tarifs"> Тариф:</label>
+          <input type="number" name="tarifs" min="100" max="5000" id="tarifs" <?php if (isset($_SESSION['inv_tariffs'])) echo 'class="invalid"';?>> 
+          <label for="phone" class="input-info">От 100 до 5000</label>
+        </div>
+
         <input type="submit" value="Отправить" id="submit">
       </form>  
     </main>
+    <script src="validator.js"></script>
 <body>
 </html>
