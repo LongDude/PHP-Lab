@@ -8,7 +8,6 @@
     $car_registration = trim($_POST['car_registration'] ?? '');
     $tariffs = trim($_POST['tarifs'] ?? 0);    
     $correct = true;
-    $msg = "Ошибка";
     $err = "";
 
     // Валидация имени
