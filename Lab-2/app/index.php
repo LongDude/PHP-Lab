@@ -56,7 +56,7 @@
         <label for="phone" class="input-info">От 100 до 5000</label>
       </div>
 
-      <input type="submit" value="Отправить" id="submit" disabled>
+      <input type="submit" value="Отправить" id="submit">
     </form>
   </main>
   <script src="validator.js"></script>
