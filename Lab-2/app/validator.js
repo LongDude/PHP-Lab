@@ -84,9 +84,15 @@ const inpPhoneValidator = new FormValidator(
 const inpEmailValidator = new FormValidator(
   inpEmail,
   (event) => {
-
-  },
-  (value) => ()
+    let val = inpEmail.value
+    let m = val.match(/^(?:[a-zA-Z]\w*)(?:\.[a-zA-Z0-9]\w*)*@?(?:(?<=@)[a-zA-Z]*)?(?:(?<=[a-zA-Z])\.?[a-zA-Z]*)?/)
+    if (!m) {
+        event.target.value = ''
+    } else {
+        event.target.value = m[0]
+    }
+},
+  (value) => (/^[a-zA-Z]\S*@[a-zA-Z]+\.[a-zA-Z]+$/.test(value))
 )
 
 const inpRegistrValidator = new FormValidator(
