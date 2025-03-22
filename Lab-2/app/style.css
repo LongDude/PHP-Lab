@@ -41,6 +41,7 @@ input, label {
     width: 100%;
 }
 
+input:invalid,
 .invalid {
     border: 2px solid #d82929;
     -webkit-box-shadow:0px 0px 14px 2px #d82929;

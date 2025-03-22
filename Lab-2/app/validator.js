@@ -23,9 +23,8 @@ class FormValidator {
         this.hasInfo = true;
       }
     }
-    this.inputValidator = inputValidator;
+    this.element.addEventListener("input", inputValidator);
     this.valueValidator = valueValidator;
-    this.element.addEventListener("input", this.validatorFunction);
   }
 
   validate() {
@@ -91,8 +90,14 @@ const inpEmailValidator = new FormValidator(
     } else {
         event.target.value = m[0]
     }
-},
+  },
   (value) => (/^[a-zA-Z]\S*@[a-zA-Z]+\.[a-zA-Z]+$/.test(value))
+)
+
+const inpIntershipValidator = new FormValidator(
+  inpIntership,
+  (_) => {},
+  (value) => (value.length > 0)
 )
 
 const inpRegistrValidator = new FormValidator(
@@ -110,7 +115,7 @@ const inpRegistrValidator = new FormValidator(
 )
 
 const inpTariffsValidator = new FormValidator(
-  inpPhone,
+  inpTariffs,
   (event) => {
     let val = inpTariffs.value;
     let m = val.match(/\d+/);
@@ -127,8 +132,6 @@ const inpTariffsValidator = new FormValidator(
   )
 )
 
-
-
 async function send_form() {
   // валидация введенных значений
   let isValid = true;
@@ -136,6 +139,8 @@ async function send_form() {
   [
     inpNameValidator,
     inpPhoneValidator,
+    inpIntershipValidator,
+    inpEmailValidator,
     inpRegistrValidator,
     inpTariffsValidator,
   ].forEach(validator => {
@@ -159,6 +164,15 @@ async function send_form() {
         }
         if (res["err"].match("INVALID PHONE")) {
           inpPhoneValidator.toggleError(true);
+        }
+        if (res["err"].match("INVALID EMAIL")) {
+          inpEmailValidator.toggleError(true);
+        }
+        if (res["err"].match("INVALID INTERSHIP")) {
+          inpIntershipValidator.toggleError(true);
+        }
+        if (res["err"].match("NO SEX")) {
+          alert("How?")
         }
         if (res["err"].match("INVALID REGISTRATION")) {
           inpRegistrValidator.toggleError(true);

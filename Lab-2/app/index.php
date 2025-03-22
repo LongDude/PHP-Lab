@@ -41,19 +41,19 @@
 
       <div>
         <label for="intership">Стаж:</label>
-        <input type="range" name="intership" id="intership">
+        <input type="number" name="intership" id="intership" min="1" max="90">
       </div>
 
       <div>
         <label for="car_registration">Номера машины:</label>
         <input type="text" name="car_registration" id="car_registration">
-        <label for="phone" class="input-info">4-8 символов латиницей/арабских цифр, без пробелов</label>
+        <label for="car_registration" class="input-info">4-8 символов латиницей/арабских цифр, без пробелов</label>
       </div>
 
       <div>
         <label for="tarifs"> Тариф:</label>
         <input type="text" name="tarifs" min="100" max="5000" id="tarifs">
-        <label for="phone" class="input-info">От 100 до 5000</label>
+        <label for="tarifs" class="input-info">От 100 до 5000</label>
       </div>
 
       <input type="submit" value="Отправить" id="submit">
