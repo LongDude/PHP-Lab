@@ -50,6 +50,7 @@
       http_response_code(400);
       $msg = "Неккоректно заполнены поля";
     }
+
     echo json_encode(array('err' => $err,'msg'=> $msg));
   }
 ?>
