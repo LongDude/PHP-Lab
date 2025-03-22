@@ -4,7 +4,7 @@ services:
       context: ./app
       dockerfile: ./Dockerfile
     env_file:
-      - ./app/.env
+      - ./.env
     ports:
       - "80:80"
     volumes:
@@ -15,14 +15,14 @@ services:
   db:
     image: mysql:8.0
     restart: always
-    env_file:
-      - ./app/.env
+    env_file: ./.env
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
+      - ./app/bd:/docker-entrypoint-initdb.d
       - db_data:/var/lib/mysql
 
   phpmyadmin:
