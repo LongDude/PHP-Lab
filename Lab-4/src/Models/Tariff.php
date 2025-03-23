@@ -9,14 +9,28 @@ use Src\Models\RequestBuilder;
 class Tariff
 {
     private PDO $pdo;
+    const fields = array(
+        'name',
+        'base_price',
+        'base_dist',
+        'base_time',
+        'dist_cost',
+        'time_cost',
+    );
     public function __construct()
     {
         $this->pdo = Database::connect();
     }
 
-    public function getList(): array|PDOException
+    public function getList(): array
     {
         $stmt = $this->pdo->prepare("SELECT * FROM tariffs");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getEntries(): array {
+        $stmt = $this->pdo->prepare("SELECT id, name FROM tariffs");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

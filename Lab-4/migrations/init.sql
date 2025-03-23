@@ -12,12 +12,12 @@ create table if not exists tariffs (
 
 create table if not exists drivers (
     id serial primary key,
-    name varchar(100) not null,
+    name varchar(50) not null,
     phone varchar(20) not null unique,
     email varchar(100) not null unique,
     intership smallint unsigned default 0 not null check (intership>=0 and intership<=80),
     car_license varchar(15) not null,
-    car_brand varchar(30) not null, 
+    car_brand varchar(50) not null, 
     tariff_id bigint unsigned null,
     FOREIGN KEY (tariff_id) REFERENCES tariffs(id)    
 );

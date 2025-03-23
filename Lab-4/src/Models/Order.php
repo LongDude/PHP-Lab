@@ -6,30 +6,42 @@ use Src\Core\Database;
 use PDO;
 use Src\Models\RequestBuilder;
 
-class Orders
+class Order
 {
     private PDO $pdo;
+
+    const fields = array(
+        'phone',
+        'from_loc',
+        'dest_loc',
+        'distance',
+        'price',
+        'orderedAt',
+        'driver_id',
+        'tariff_id',
+    );
+
     public function __construct()
     {
         $this->pdo = Database::connect();
     }
 
-    public function getList(): array|PDOException
+    public function getList(): array
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM orders");
+        $stmt = $this->pdo->prepare("SELECT o.phone, o.from_loc, o.dest_loc, o.distance, o.price, d.name, t.name FROM orders o INNER JOIN tariffs t ON t.id = o.tariff_id INNER JOIN drivers d on d.id = o.driver_id");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getListFiltered(array $filter): array
     {
-        $builder = new RequestBuilder("SELECT * FROM orders where 1=1 ", $filter);
+        $builder = new RequestBuilder("SELECT o.phone, o.from_loc, o.dest_loc, o.distance, o.price, d.id, t.id FROM orders o where 1=1 ", $filter);
         [$stmt_raw, $prms] = $builder
             ->range("deportedAt")
             ->exact("tariff_id")
             ->exact("driver_id")
             ->build();
-
+        $stmt_raw .= "INNER JOIN tariffs t ON t.id = o.tariff_id INNER JOIN drivers d on d.id = o.driver_id";
         $stmt = $this->pdo->prepare($stmt_raw);
         $stmt->execute($prms);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -41,18 +53,16 @@ class Orders
         string $dest_loc,
         float $distance,
         float $price,
-        string $orderedAt,
         int $driver_id,
         int $tariff_id,
     ): bool {
-        $stmt = $this->pdo->prepare("INSERT INTO orders (phone, from_loc, dest_loc, distance, price, orderedAt, driver_id, tariff_id) VALUES (:phone, :from_loc, :dest_loc, :distance, :price, :orderedAt, :driver_id, :tariff_id)");
+        $stmt = $this->pdo->prepare("INSERT INTO orders (phone, from_loc, dest_loc, distance, price, driver_id, tariff_id) VALUES (:phone, :from_loc, :dest_loc, :distance, :price, :driver_id, :tariff_id)");
         $res = $stmt->execute(array(
             ':phone' => $phone,
             ':from_loc' => $from_loc,
             ':dest_loc' => $dest_loc,
             ':distance' => $distance,
             ':price' => $price,
-            ':orderedAt' => $orderedAt,
             ':driver_id' => $driver_id,
             ':tariff_id' => $tariff_id,
         ));
