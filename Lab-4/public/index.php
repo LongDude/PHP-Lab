@@ -10,18 +10,24 @@ $router = new Router();
 
 $drivers = new DriverController();
 $router->get('/drivers', [$drivers, 'index']);
-$router->get('/drivers/add', [$drivers, 'addForm']);
-$router->post('/drivers/add', [$drivers, 'add']);
+$router->get('/drivers/entries', [$drivers, 'getEntries']);
+$router->get('/drivers/all', [$drivers, 'getAll']);
+$router->get('/drivers/add', [$drivers, 'form']);
+$router->post('/drivers/add', [$drivers, 'addDriver']);
 
 $orders = new OrderController();
 $router->get('/orders', [$orders, 'index']);
-$router->get('/orders/add', [$orders, 'addForm']);
-$router->post('/orders/add', [$orders, 'add']);
+$router->get('/orders/entries', [$orders, 'index']);
+$router->get('/orders/all', [$orders, 'index']);
+$router->get('/orders/add', [$orders, 'form']);
+$router->post('/orders/add', [$orders, 'addOrder']);
 
 $tariffs = new TariffController();
 $router->get('/tariffs', [$tariffs, 'index']);
-$router->get('/tariffs/add', [$tariffs, 'addForm']);
-$router->post('/tariffs/add', [$tariffs, 'add']);
+$router->get('/tariffs/entries', [$tariffs, 'getEntries']);
+$router->get('/tariffs/all', [$tariffs, 'getAll']);
+$router->get('/tariffs/add', [$tariffs, 'form']);
+$router->post('/tariffs/add', [$tariffs, 'addTariff']);
 
 $router->resolve();
 

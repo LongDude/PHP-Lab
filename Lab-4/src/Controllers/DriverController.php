@@ -76,7 +76,7 @@ class DriverController
         session_start();
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header("Location: /drivers/create");
+            header("Location: /drivers/add");
             exit;
         }
 
@@ -94,13 +94,13 @@ class DriverController
             } else {
                 $_SESSION['error'] .= $validationErrors;
             }
-            header("Location: /drivers/create");
+            header("Location: /drivers/add");
             exit;
         }
         $validationErrors = DriverValidator::validateData($_POST);
         if ($validationErrors !== "") {
             $_SESSION['error'] = $validationErrors;
-            header("Location: /drivers/create");
+            header("Location: /drivers/add");
             exit;
         }
 
@@ -127,7 +127,7 @@ class DriverController
         } else {
             $_SESSION['message'] = "An error occured\n";
         }
-        header("Location: /drivers/create");
+        header("Location: /drivers/add");
         exit;
     }
 }

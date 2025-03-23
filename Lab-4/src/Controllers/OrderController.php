@@ -57,7 +57,7 @@ class OrderController
 
     public function form()
     {
-        include __DIR__ . '/../views/tariff_form.php';
+        include __DIR__ . '/../views/order_form.php';
     }
 
     public function addOrder()
@@ -65,7 +65,7 @@ class OrderController
         session_start();
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header("Location: /orders/create");
+            header("Location: /orders/add");
             exit;
         }
 
@@ -83,13 +83,13 @@ class OrderController
             } else {
                 $_SESSION['error'] .= $validationErrors;
             }
-            header("Location: /orders/create");
+            header("Location: /orders/add");
             exit;
         }
         $validationErrors = OrderValidator::validateData($_POST);
         if ($validationErrors !== "") {
             $_SESSION['error'] = $validationErrors;
-            header("Location: /orders/create");
+            header("Location: /orders/add");
             exit;
         }
 
@@ -116,7 +116,7 @@ class OrderController
         } else {
             $_SESSION['message'] = "An error occured\n";
         }
-        header("Location: /orders/create");
+        header("Location: /orders/add");
         exit;
     }
 }

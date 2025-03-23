@@ -70,7 +70,7 @@ class TariffController
         session_start();
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header("Location: /tariffs/create");
+            header("Location: /tariffs/add");
             exit;
         }
 
@@ -88,13 +88,13 @@ class TariffController
             } else {
                 $_SESSION['error'] .= $validationErrors;
             }
-            header("Location: /tariffs/create");
+            header("Location: /tariffs/add");
             exit;
         }
         $validationErrors = TariffValidator::validateData($_POST);
         if ($validationErrors !== "") {
             $_SESSION['error'] = $validationErrors;
-            header("Location: /tariffs/create");
+            header("Location: /tariffs/add");
             exit;
         }
 
@@ -119,7 +119,7 @@ class TariffController
         } else {
             $_SESSION['message'] = "An error occured\n";
         }
-        header("Location: /tariffs/create");
+        header("Location: /tariffs/add");
         exit;
     }
 }
