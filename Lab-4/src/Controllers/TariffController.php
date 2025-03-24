@@ -1,9 +1,9 @@
 <?php
-namespace Src\Controllers;
+namespace src\Controllers;
 
-use Src\Files\BaseUploader;
-use Src\Models\Tariff;
-use Src\Validators\TariffValidator;
+use src\Files\BaseUploader;
+use src\Models\Tariff;
+use src\Validators\TariffValidator;
 
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
@@ -62,7 +62,7 @@ class TariffController
 
     public function form()
     {
-        include __DIR__ . '/../views/tariff_form.php';
+        include __DIR__ . '/../views/Forms/tariff_form.php';
     }
 
     public function addTariff()

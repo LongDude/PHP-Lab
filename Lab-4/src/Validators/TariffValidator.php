@@ -1,7 +1,7 @@
 <?php
 
-namespace Src\Validators;
-use Src\Validators\BaseValidators;
+namespace src\Validators;
+require_once 'BaseValidators.php';
 
 class TariffValidator implements ModelValidator
 {
@@ -45,23 +45,36 @@ class TariffValidator implements ModelValidator
     public static function validateFilter(array $data): array
     {
         $err = "";
-        if (isset($data['name']) and strlen($data['name']) == 0) {
-            unset($data['name']);
-            $err .= "INVALID name FILTER;";
+        if (isset($data['name'])) {
+            if (strlen($data['name']) == 0) {
+                unset($data['name']);
+                $err .= "INVALID name FILTER;";
+            } else {
+                $data['name'] = trim($data['name']);
+            }
         }
 
-        if (
-            isset($data['base_price']) and (
-                !isset($data['intership']['from']) or !is_numeric($data['intership']['from']) or $data['intership']['from'] < 0 or
-                !isset($data['intership']['to']) or !is_numeric($data['intership']['to']) or $data['intership']['to'] < 0
-            )
-        ) {
-            unset($data['base_price']);
-            $err .= "INVALID base_price FILTER;";
+        if (isset($data['base_price_from'])) {
+            if ($data['base_price_from'] < 0 or $data['base_price_from'] > 100000) {
+                $err .= "INVALID base_price_from FILTER;";
+
+            } else {
+                $data['base_price']['from'] = trim($data['base_price_from']);
+            }
+            unset($data['base_price_from']);
+        }
+
+        if (isset($data['base_price_to'])) {
+            if ($data['base_price_to'] < 0 or $data['base_price_to'] > 100000) {
+                $err .= "INVALID base_price_to FILTER;";
+
+            } else {
+                $data['base_price']['to'] = trim($data['base_price_to']);
+            }
+            unset($data['base_price_to']);
         }
 
         return array($data, $err);
-
     }
 }
 ?>

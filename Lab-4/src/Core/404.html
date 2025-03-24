@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GETOUT</title>
+</head>
+<body>
+    <style>
+        body {
+            display: grid;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;   
+            grid-template-rows: 50% 50%;
+            grid-template-columns: 100%;
+            justify-content: center; 
+            justify-items: center;
+            align-items: top;
+            align-content: center;
+        }
+        #image {
+            width: 100%;
+            height: 100%;
+            background-image: url("assets/1574787562143769699-1402573659.jpg");
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-position: center;
+        }
+    </style>
+        <div id="image"></div>
+        <div id="links">
+            <h1>Водители</h1>
+            <div>
+                <a href="/drivers">Таблица</a>
+                <a href="/drivers/all">Все записи</a>
+                <a href="/drivers/add">Регистрация</a>
+            </div>
+            <h1>Заказы</h1>
+            <div>
+                <a href="/orders">Таблица</a>
+                <a href="/orders/all">Все записи</a>
+                <a href="/orders/add">Регистрация</a>
+            </div>
+            <h1>Тарифы</h1>
+            <div>
+                <a href="/tariffs">Таблица</a>
+                <a href="/tariffs/all">Все записи</a>
+                <a href="/tariffs/add">Регистрация</a>
+            </div>
+        </div>
+
+</body>
+</html>

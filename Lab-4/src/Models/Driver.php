@@ -1,10 +1,10 @@
 <?php
 
-namespace Src\Models;
+namespace src\Models;
 use PDOException;
-use Src\Core\Database;
+use src\Core\Database;
 use PDO;
-use Src\Models\RequestBuilder;
+use src\Models\RequestBuilder;
 
 class Driver
 {
@@ -27,7 +27,7 @@ class Driver
 
     public function getList(): array
     {
-        $stmt = $this->pdo->prepare("SELECT d.name, d.phone, d.email, d.intership, d.car_license, d.car_brand, t.name FROM drivers d INNER JOIN tariffs t on t.id == d.tariff_id");
+        $stmt = $this->pdo->prepare("SELECT d.name as name, phone, email, intership, car_license, car_brand, t.name as tariff_name FROM drivers d INNER JOIN tariffs t on t.id = d.tariff_id");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -40,8 +40,7 @@ class Driver
 
     public function getListFiltered(array $filter): array
     {
-        $builder = new RequestBuilder("SELECT d.name, d.phone, d.email, d.intership, d.car_license, d.car_brand, t.name FROM drivers d where 1=1 ", $filter);
-
+        $builder = new RequestBuilder("SELECT d.name as name, d.phone, d.email, d.intership, d.car_license, d.car_brand, t.name as tariff_name FROM drivers d INNER JOIN tariffs t on t.id = d.tariff_id where 1=1 ", $filter);
         [$stmt_raw, $prms] = $builder
             ->stringFuzzy("name")
             ->stringFuzzy("phone")
@@ -51,7 +50,7 @@ class Driver
             ->stringFuzzy("car_brand")
             ->exact("tariff_id")
             ->build();
-        $stmt_raw .= "INNER JOIN tariffs t on t.id == d.tariff_id";
+
         $stmt = $this->pdo->prepare($stmt_raw);
         $stmt->execute($prms);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

@@ -1,4 +1,4 @@
-SET GLOBAL time_zone = '+8:00';
+SET GLOBAL time_zone = 'Europe/Moscow';
 
 create table if not exists tariffs (
     id serial primary key,
@@ -24,8 +24,8 @@ create table if not exists drivers (
 
 create table if not exists orders (
     id serial primary key,
-    from_loc varchar(21) not null, -- Пара (-xxx.xxxxxx;-xxx.xxxxxx) -21 символ
-    dest_loc varchar(21) not null,
+    from_loc varchar(24) not null, -- Пара (-xxx.xxxxxx;-xxx.xxxxxx) -21 символ
+    dest_loc varchar(24) not null,
     distance float default 0 not null,
     price float default 0 not null,
     phone varchar(20) not null,

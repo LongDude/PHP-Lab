@@ -1,6 +1,6 @@
 <?php
 
-namespace Src\Core;
+namespace src\Core;
 
 use PDO;
 
@@ -10,10 +10,7 @@ class Database
 {
     private static ?PDO $pdo = null;
 
-    private static $host = 'db';
-    private static $name = $_ENV['MYSQL_DATABASE'];
-    private static $user = $_ENV['MYSQL_USER'];
-    private static $pass = $_ENV['MYSQL_PASSWORD'];
+    const host = 'db';
 
     public static function connect(): PDO
     {
@@ -23,9 +20,9 @@ class Database
 
         try {
             self::$pdo = new PDO(
-                "mysql:host=" . self::$host . ";dbname=" . self::$name,
-                self::$user,
-                self::$pass,
+                "mysql:host=" . Database::host . ";dbname=" . $_ENV["MYSQL_DATABASE"],
+                $_ENV['MYSQL_USER'],
+                $_ENV['MYSQL_PASSWORD'],
                 [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
             );
 

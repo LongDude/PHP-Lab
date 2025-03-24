@@ -1,9 +1,9 @@
 <?php
-namespace Src\Controllers;
+namespace src\Controllers;
 
-use Src\Files\BaseUploader;
-use Src\Models\Order;
-use Src\Validators\OrderValidator;
+use src\Files\BaseUploader;
+use src\Models\Order;
+use src\Validators\OrderValidator;
 
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
@@ -57,7 +57,7 @@ class OrderController
 
     public function form()
     {
-        include __DIR__ . '/../views/order_form.php';
+        include __DIR__ . '/../views/Forms/order_form.php';
     }
 
     public function addOrder()
@@ -97,7 +97,6 @@ class OrderController
         $from_loc = trim($_POST['from_loc'] ?? "");
         $dest_loc = trim($_POST['dest_loc'] ?? "");
         $distance = trim($_POST['distance'] ?? "");
-        $price = trim($_POST['price'] ?? "");
         $driver_id = trim($_POST['driver_id'] ?? "");
         $tariff_id = trim($_POST['tariff_id'] ?? "");
 
@@ -106,7 +105,6 @@ class OrderController
             $from_loc,
             $dest_loc,
             (float) $distance,
-            (float) $price,
             (int) $driver_id,
             (int) $tariff_id,
         );

@@ -1,10 +1,10 @@
 <?php
 
-namespace Src\Models;
+namespace src\Models;
 use PDOException;
-use Src\Core\Database;
+use src\Core\Database;
 use PDO;
-use Src\Models\RequestBuilder;
+use src\Models\RequestBuilder;
 
 class Tariff
 {
@@ -24,7 +24,7 @@ class Tariff
 
     public function getList(): array
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM tariffs");
+        $stmt = $this->pdo->prepare("SELECT name, base_price, base_dist, base_time, dist_cost, time_cost FROM tariffs");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

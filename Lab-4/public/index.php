@@ -1,11 +1,10 @@
 <?php
 require __DIR__ . '/../vendor/autoload.php';
 
-use Src\Core\Router;
-use Src\Controllers\DriverController;
-use Src\Controllers\OrderController;
-use Src\Controllers\TariffController;
-
+use src\Core\Router;
+use src\Controllers\DriverController;
+use src\Controllers\OrderController;
+use src\Controllers\TariffController;
 $router = new Router();
 
 $drivers = new DriverController();
@@ -17,8 +16,7 @@ $router->post('/drivers/add', [$drivers, 'addDriver']);
 
 $orders = new OrderController();
 $router->get('/orders', [$orders, 'index']);
-$router->get('/orders/entries', [$orders, 'index']);
-$router->get('/orders/all', [$orders, 'index']);
+$router->get('/orders/all', [$orders, 'getAll']);
 $router->get('/orders/add', [$orders, 'form']);
 $router->post('/orders/add', [$orders, 'addOrder']);
 
@@ -31,7 +29,7 @@ $router->post('/tariffs/add', [$tariffs, 'addTariff']);
 
 $router->resolve();
 
-$loader = new \Twig\Loader\FilesystemLoader('./../src/Views');
+$loader = new \Twig\Loader\FilesystemLoader('./../src/views');
 $twig = new \Twig\Environment($loader, [
     'cache' => false,
 ]);

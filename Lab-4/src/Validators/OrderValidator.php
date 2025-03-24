@@ -1,7 +1,7 @@
 <?php
 
-namespace Src\Validators;
-use Src\Validators\BaseValidators;
+namespace src\Validators;
+require_once 'BaseValidators.php';
 
 class OrderValidator  implements ModelValidator
 {
@@ -11,27 +11,22 @@ class OrderValidator  implements ModelValidator
         $from_loc = trim($data['from_loc'] ?? '');
         $dest_loc = trim($data['dest_loc'] ?? '');
         $distance = trim($data['distance'] ?? '');
-        $price = trim($data['price'] ?? '');
         $driver_id = trim($data['driver_id'] ?? '');
         $tariff_id = trim($data['tariff_id'] ?? '');
         $err = "";
         
         $err .= BaseValidators::phoneValidator($phone);
 
-        if(!preg_match("/-?\d{1,3}\.\d{6};/-?\d{1,3}\.\d{6}/", $from_loc)){
+        if(!preg_match("/-?\d{1,3}\.\d{6};-?\d{1,3}\.\d{6}/", $from_loc)){
             $err .= "INVALID from_loc DATA;";
         }
 
-        if(!preg_match("/-?\d{1,3}\.\d{6};/-?\d{1,3}\.\d{6}/", $dest_loc)){
+        if(!preg_match("/-?\d{1,3}\.\d{6};-?\d{1,3}\.\d{6}/", $dest_loc)){
             $err .= "INVALID dest_loc DATA;";
         }
 
         if(!is_numeric($distance) or $distance < 0){
             $err .= "INVALID distance DATA;";
-        }
-
-        if(!is_numeric($price) or $price < 0){
-            $err .= "INVALID price DATA;";
         }
 
         if(!is_numeric($driver_id) or $driver_id < 0){
@@ -48,12 +43,24 @@ class OrderValidator  implements ModelValidator
     {
         $err = "";
         // Формат даты: YYYY-MM-DD hh:mm:ss
-        if (isset($data['orderedAt']) and (
-            !isset($data['orderedAt']['from']) or !BaseValidators::validateDate($data['orderedAt']['from']) or
-            !isset($data['orderedAt']['to']) or !BaseValidators::validateDate($data['orderedAt']['to'])
-        )){
-            unset($data['orderedAt']);
-            $err .= "INVALID orderedAt FILTER;";
+        if (isset($data['orderedAt_from'])){
+            if (!isset($data['orderedAt_from']) or !BaseValidators::validateDate($data['orderedAt_from'])){
+                $err .= "INVALID orderedAt_from FILTER;";
+                
+            } else {
+                $data['orderedAt']['from'] = $data['orderedAt_from']; 
+            }
+            unset($data['orderedAt_from']);
+        }
+
+        if (isset($data['orderedAt_to'])){
+            if (!isset($data['orderedAt_to']) or !BaseValidators::validateDate($data['orderedAt_to'])){
+                $err .= "INVALID orderedAt_to FILTER;";
+                
+            } else {
+                $data['orderedAt']['to'] = $data['orderedAt_to']; 
+            }
+            unset($data['orderedAt_to']);
         }
 
         if (

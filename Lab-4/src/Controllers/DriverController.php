@@ -1,10 +1,10 @@
 <?php
-namespace Src\Controllers;
+namespace src\Controllers;
 
 use PDOException;
-use Src\Files\BaseUploader;
-use Src\Models\Driver;
-use Src\Validators\DriverValidator;
+use src\Files\BaseUploader;
+use src\Models\Driver;
+use src\Validators\DriverValidator;
 
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
@@ -68,7 +68,7 @@ class DriverController
 
     public function form()
     {
-        include __DIR__ . '/../views/driver_form.php';
+        include __DIR__ . '/../views/Forms/driver_form.php';
     }
 
     public function addDriver()

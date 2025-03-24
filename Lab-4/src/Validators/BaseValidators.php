@@ -1,5 +1,5 @@
 <?php
-namespace Src\Validators;
+namespace src\Validators;
 use DateTime;
 
 

@@ -1,5 +1,5 @@
 <?php
-    namespace Src\Core;
+    namespace src\Core;
 
     class Router {
         private array $routes = [];
@@ -18,7 +18,7 @@
                 call_user_func($this->routes[$method][$path]);
             } else {
                 http_response_code(404);
-                echo "GETOUT";
+                require __DIR__ . "/404.html";
             }
         }
     }

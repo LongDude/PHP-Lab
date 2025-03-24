@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 
   // Валидация регистрационного номера машины
-  if (!preg_match("/^[а-яA-Z0-9]{4,8}[ -][а-яЫA-Z0-9]{2,4}$/ui", $car_registration)) {
+  if (!preg_match("/^[а-яa-z0-9]{4,8}[ -][а-яa-z0-9]{2,4}$/ui", $car_registration)) {
     $err .= "INVALID LICENSE\n";
     $correct = false;
   }

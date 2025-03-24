@@ -1,6 +1,6 @@
 <?php
 
-namespace Src\Models;
+namespace src\Models;
 
 class RequestBuilder
 {
@@ -23,7 +23,7 @@ class RequestBuilder
             isset($this->context[$field]) and
             $this->context[$field] !== ""
         ) {
-            $this->stmt .= "AND $field=:$field ";
+            $this->stmt .= "AND LOWER($field) LIKE CONCAT(\"%\",LOWER(:$field),\"%\") ";
             $this->prms[":$field"] = $this->context[$field];
         }
         return $this;
@@ -31,32 +31,44 @@ class RequestBuilder
 
     public function range($field): RequestBuilder
     {
-        if (
-            $field !== "" and
-            isset($this->context[$field]) and
-            isset($this->context[$field]['from']) and $this->context[$field]['from'] !== "" and
-            isset($this->context[$field]['to']) and $this->context[$field]['to'] !== ""
-        ) {
-            $this->stmt .= "AND $field BETWEEN :$field" . "_from" . " AND :$field" . "_to" . " ";
-            $this->prms[":$field" . "_from"] = $this->context[$field]['from'];
-            $this->prms[":$field" . "_to"] = $this->context[$field]['to'];
+        if ($field !== "" and isset($this->context[$field])){
+            $lowerbound = $this->context[$field]['from'] ?? "";
+            $upperbound = $this->context[$field]['to'] ?? "";
+            if ($lowerbound == "" and $upperbound !== ""){
+                // Only upperbound
+                $this->stmt .= "AND $field <= :$field" . "_to" . " ";
+                $this->prms[":$field" . "_to"] = $upperbound;
+            }
+            if ($lowerbound != "" and $upperbound == ""){
+                // Only lowerbound
+                $this->stmt .= "AND $field >= :$field" . "_from" . " ";
+                $this->prms[":$field" . "_from"] = $lowerbound;
+            }
+            if ($lowerbound !== "" and $upperbound !== ""){
+                // Both
+                $this->stmt .= "AND $field BETWEEN :$field" . "_from" . " AND :$field" . "_to" . " ";
+                $this->prms[":$field" . "_from"] = $lowerbound;
+                $this->prms[":$field" . "_to"] = $upperbound;
+            }
         }
         return $this;
     }
 
-    public function exact($field): RequestBuilder{
+    public function exact($field): RequestBuilder
+    {
         if (
             $field !== "" and
             isset($this->context[$field]) and
             $this->context[$field] != ""
-        ){
+        ) {
             $this->stmt .= "AND $field = :$field";
             $this->prms[":$field"] = $this->context[$field];
         }
         return $this;
     }
 
-    public function build(): array {
+    public function build(): array
+    {
         // Возвращает пару (stmt, params)
         return array($this->stmt, $this->prms);
     }
