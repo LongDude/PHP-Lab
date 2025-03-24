@@ -47,23 +47,23 @@ class DriverValidator implements ModelValidator
         $err = "";
 
         // Фильтрация стажа
-        if (isset($data['intership_from'])) {
-            if ($data['intership_from'] < 0 or $data['intership_from'] > 100) {
-                $err .= "INVALID intership_from FILTER;";
-            } else {
-                $data['intership']['from'] = trim($data['intership_from']);
-            }
-            unset($data['intership_from']);
-        }
+        // if (isset($data['intership_from'])) {
+        //     if ($data['intership_from'] < 0 or $data['intership_from'] > 100) {
+        //         $err .= "INVALID intership_from FILTER;";
+        //     } else {
+        //         $data['intership']['from'] = trim($data['intership_from']);
+        //     }
+        //     unset($data['intership_from']);
+        // }
 
-        if (isset($data['intership_to'])) {
-            if ($data['intership_to'] < 0 or $data['intership_to'] > 100) {
-                $err .= "INVALID intership_to FILTER;";
-            } else {
-                $data['intership']['to'] = trim($data['intership_to']);
-            }
-            unset($data['intership_to']);
-        }
+        // if (isset($data['intership_to'])) {
+        //     if ($data['intership_to'] < 0 or $data['intership_to'] > 100) {
+        //         $err .= "INVALID intership_to FILTER;";
+        //     } else {
+        //         $data['intership']['to'] = trim($data['intership_to']);
+        //     }
+        //     unset($data['intership_to']);
+        // }
 
         if (isset($data['name'])) {
             if (strlen($data['name']) == 0) {
@@ -92,14 +92,14 @@ class DriverValidator implements ModelValidator
             }
         }
 
-        if (isset($data['car_brand'])){
-            if (strlen($data['car_brand']) == 0){
-                unset($data['car_brand']);
-                $err .= "INVALID car_brand FILTER;";
-            } else {
-                $data['car_brand'] = trim($data['car_brand']);
-            }
-        }
+        // if (isset($data['car_brand'])){
+        //     if (strlen($data['car_brand']) == 0){
+        //         unset($data['car_brand']);
+        //         $err .= "INVALID car_brand FILTER;";
+        //     } else {
+        //         $data['car_brand'] = trim($data['car_brand']);
+        //     }
+        // }
 
         // Фильтрация лицензионой платы
         if (isset($data['car_license'])){

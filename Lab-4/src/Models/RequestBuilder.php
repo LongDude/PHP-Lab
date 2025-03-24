@@ -15,7 +15,7 @@ class RequestBuilder
         $this->context = $context;
     }
 
-    public function stringFuzzy($field): RequestBuilder
+    public function stringFuzzy($field, $mask = null): RequestBuilder
     {
         // Если параметр для заданного поля не пустой
         if (
@@ -23,7 +23,7 @@ class RequestBuilder
             isset($this->context[$field]) and
             $this->context[$field] !== ""
         ) {
-            $this->stmt .= "AND LOWER($field) LIKE CONCAT(\"%\",LOWER(:$field),\"%\") ";
+            $this->stmt .= "AND LOWER(".($mask ?? $field).") LIKE CONCAT(\"%\",LOWER(:$field),\"%\") ";
             $this->prms[":$field"] = $this->context[$field];
         }
         return $this;
@@ -54,14 +54,14 @@ class RequestBuilder
         return $this;
     }
 
-    public function exact($field): RequestBuilder
+    public function exact($field, $mask = null): RequestBuilder
     {
         if (
             $field !== "" and
             isset($this->context[$field]) and
             $this->context[$field] != ""
         ) {
-            $this->stmt .= "AND $field = :$field";
+            $this->stmt .= "AND ". ($mask ?? $field) ." = :$field ";
             $this->prms[":$field"] = $this->context[$field];
         }
         return $this;

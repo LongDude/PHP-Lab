@@ -2,7 +2,9 @@
 namespace src\Controllers;
 
 use src\Files\BaseUploader;
+use src\Models\Driver;
 use src\Models\Order;
+use src\Models\Tariff;
 use src\Validators\OrderValidator;
 
 use Twig\Environment;
@@ -43,12 +45,18 @@ class OrderController
             $_SESSION['error'] = $err;
         }
 
+
+        $drivers_list = new Driver() -> getEntries();
+        $tariffs_list = new Tariff() -> getEntries();
+
         echo $this->twig->render(
             'Tables/orders_table.twig',
             [
+                'drivers_entries' => $drivers_list,
+                'tariffs_entries' => $tariffs_list,
                 'orders' => $list,
-                'deportedAt_from' => $filter["deportedAt"]['from'] ?? "",
-                'deportedAt_to' => $filter["deportedAt"]['to'] ?? "",
+                'orderedAt_from' => $filter["orderedAt"]['from'] ?? "",
+                'orderedAt_to' => $filter["orderedAt"]['to'] ?? "",
                 'tariff_id' => $filter["tariff_id"] ?? "",
                 'driver_id' => $filter["driver_id"] ?? "",
             ]

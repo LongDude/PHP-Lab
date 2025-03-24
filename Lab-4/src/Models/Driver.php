@@ -42,12 +42,12 @@ class Driver
     {
         $builder = new RequestBuilder("SELECT d.name as name, d.phone, d.email, d.intership, d.car_license, d.car_brand, t.name as tariff_name FROM drivers d INNER JOIN tariffs t on t.id = d.tariff_id where 1=1 ", $filter);
         [$stmt_raw, $prms] = $builder
-            ->stringFuzzy("name")
+            ->stringFuzzy("name", "d.name")
             ->stringFuzzy("phone")
             ->stringFuzzy("email")
-            ->range("intership")
+            // ->range("intership")
             ->exact("car_license")
-            ->stringFuzzy("car_brand")
+            // ->stringFuzzy("car_brand")
             ->exact("tariff_id")
             ->build();
 

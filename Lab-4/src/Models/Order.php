@@ -34,11 +34,11 @@ class Order
 
     public function getListFiltered(array $filter): array
     {
-        $builder = new RequestBuilder("SELECT o.phone as phone, from_loc, dest_loc, distance, d.name as driver_name, t.name as tariff_name FROM orders o INNER JOIN tariffs t ON t.id = o.tariff_id INNER JOIN drivers d on d.id = o.driver_id where 1=1 ", $filter);
+        $builder = new RequestBuilder("SELECT o.phone as phone, from_loc, dest_loc, distance, orderedAt, d.name as driver_name, t.name as tariff_name FROM orders o INNER JOIN tariffs t ON t.id = o.tariff_id INNER JOIN drivers d on d.id = o.driver_id where 1=1 ", $filter);
         [$stmt_raw, $prms] = $builder
-            ->range("deportedAt")
-            ->exact("tariff_id")
-            ->exact("driver_id")
+            ->range("orderedAt")
+            ->exact("tariff_id", "o.tariff_id")
+            ->exact("driver_id", "o.driver_id")
             ->build();
         $stmt = $this->pdo->prepare($stmt_raw);
         $stmt->execute($prms);

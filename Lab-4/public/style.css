@@ -5,9 +5,11 @@
 }
 
 body {
-    display: grid;
+    display: flex;
+    flex-direction: row;
     align-items: center;
     justify-items: center;
+    justify-content: space-around;
     height: 100vh;
     width: 100vw;
 
@@ -15,7 +17,9 @@ body {
     color: orange;
 }
 
-main {
+main, 
+aside 
+{
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -27,6 +31,37 @@ main {
     -webkit-box-shadow:0px 0px 62px 5px rgba(255,172,64,0.9);
     -moz-box-shadow: 0px 0px 62px 5px rgba(255,172,64,0.9);
     box-shadow: 0px 0px 62px 5px rgba(255,172,64,0.9);
+}
+
+.table-panel{
+    height: 80%;
+
+}
+
+.table-panel * {
+    text-align: center;
+    padding: 2px;
+    border-spacing: 0px;
+    border-collapse: collapse;
+    margin: 0px;
+    gap: 0px;
+}
+
+.table-panel td,
+.table-panel tr,
+.table-panel th
+{
+    border: 1px solid rgba(149, 88, 9, 0.844);
+    border-top: 2px solid rgba(255,172,64,0.9);
+    border-bottom: 2px solid rgba(255,172,64,0.9);
+}
+
+.table-panel table {
+    border: 2px solid rgba(255,172,64,0.9);
+}
+
+a {
+    color: rgba(255,172,64,0.9);
 }
 
 form {
@@ -48,6 +83,8 @@ input:invalid,
     box-shadow: 0px 0px 14px 2px #d82929;
 
 }
+
+
 
 .invalid-info {
     color: red !important;

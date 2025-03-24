@@ -42,6 +42,15 @@ class BaseValidators
         $d = DateTime::createFromFormat($format, $date);
         return $d && $d->format($format) == $date;
     }
+    public static function formatDate($date)
+    {
+        $d = new DateTime()->setTimestamp(strtotime($date));
+        if (!$d || $d->getTimestamp() == 0){
+            return "";
+        } else {
+            return $d->format('Y-m-d H:i:s');
+        }
+    }
 }
 
 ?>

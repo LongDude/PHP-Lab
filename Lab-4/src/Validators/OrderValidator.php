@@ -42,27 +42,29 @@ class OrderValidator  implements ModelValidator
     public static function validateFilter(array $data): array
     {
         $err = "";
+
         // Формат даты: YYYY-MM-DD hh:mm:ss
         if (isset($data['orderedAt_from'])){
-            if (!isset($data['orderedAt_from']) or !BaseValidators::validateDate($data['orderedAt_from'])){
+            $formattedDateFrom = BaseValidators::formatDate($data['orderedAt_from']);
+            if ($formattedDateFrom == ""){
                 $err .= "INVALID orderedAt_from FILTER;";
                 
             } else {
-                $data['orderedAt']['from'] = $data['orderedAt_from']; 
+                $data['orderedAt']['from'] = $formattedDateFrom; 
             }
             unset($data['orderedAt_from']);
         }
 
         if (isset($data['orderedAt_to'])){
-            if (!isset($data['orderedAt_to']) or !BaseValidators::validateDate($data['orderedAt_to'])){
+            $formattedDateTo = BaseValidators::formatDate($data['orderedAt_to']);
+            if ($formattedDateTo == ""){
                 $err .= "INVALID orderedAt_to FILTER;";
                 
             } else {
-                $data['orderedAt']['to'] = $data['orderedAt_to']; 
+                $data['orderedAt']['to'] = $formattedDateTo; 
             }
             unset($data['orderedAt_to']);
         }
-
         if (
             isset($data['tariff_id']) and (
                 !is_numeric($data['tariff_id']) || $data['tariff_id'] < 0
@@ -80,7 +82,6 @@ class OrderValidator  implements ModelValidator
             unset($data['driver_id']);
             $err .= "INVALID driver_id FILTER;";
         }
-
         return array($data, $err);
     }
 }

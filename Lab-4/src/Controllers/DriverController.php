@@ -57,10 +57,10 @@ class DriverController
                 'name' => $filter["name"] ?? "",
                 'phone' => $filter["phone"] ?? "",
                 'email' => $filter["email"] ?? "",
-                'intership_from' => $filter["intership"]["from"] ?? "",
-                'intership_to' => $filter["intership"]["to"] ?? "",
+                // 'intership_from' => $filter["intership"]["from"] ?? "",
+                // 'intership_to' => $filter["intership"]["to"] ?? "",
                 'car_license' => $filter["car_license"] ?? "",
-                'car_brand' => $filter["car_brand"] ?? "",
+                // 'car_brand' => $filter["car_brand"] ?? "",
                 'tariff_id' => $filter["tariff_id"] ?? "",
             ]
         );
