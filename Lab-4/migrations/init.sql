@@ -19,6 +19,7 @@ create table if not exists drivers (
     car_license varchar(15) not null,
     car_brand varchar(50) not null, 
     tariff_id bigint unsigned null,
+    rating float default 0 not null check (rating >= 0 and rating <= 5),
     FOREIGN KEY (tariff_id) REFERENCES tariffs(id)    
 );
 

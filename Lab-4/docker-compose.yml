@@ -41,6 +41,9 @@ services:
     image: israelhikingmap/graphhopper
     command: --url https://download.openstreetmap.fr/extracts/russia/central_federal_district/lipetsk_oblast-latest.osm.pbf --host 0.0.0.0
     restart: unless-stopped
+    volumes:
+      - graphhopper_data:/data
 
 volumes:
   db_data:
+  graphhopper_data:

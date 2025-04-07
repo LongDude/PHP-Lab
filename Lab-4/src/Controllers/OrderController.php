@@ -63,6 +63,55 @@ class OrderController
         );
     }
 
+    public function orderTaxi()
+    {
+        session_start();
+
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            
+            $filter = array();
+            if (isset($_GET['rating_from'])){
+                if ($_GET['rating_from'] >= 0 and $_GET['rating_from'] <= 5){
+                    $filter['rating']['from'] = $_GET['rating_from'];
+                }
+            }
+            
+            if (isset($_GET['tariff_id']) and $_GET['tariff_id'] > 0){
+                $filter['tariff_id'] = $_GET['tariff_id'];
+            }
+            
+            
+
+            $list = $this->model->getAvaliableRides($filter);
+            $avaliable_tariffs = new Tariff()->getEntries();
+            
+            echo $this->twig->render(
+                'Tables/new_taxi_order.twig',
+                [
+                    'avaliable_orders' => $list,
+                    'avaliable_tariffs' => $avaliable_tariffs,
+                    'rating_from' => $filter["rating"]['from'] ?? "",
+                    'tariff_id' => $filter["tariff_id"] ?? "",
+                    ]
+                );
+            }
+        elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            header('Content-type: application/json');
+            $driver_id = trim($_POST['driver_id'] ?? "");
+            $begin = trim($_POST['startPoint'] ?? "");
+            $destination = trim($_POST['endPoint'] ?? "");
+            $distance = trim($_POST['distance'] ?? "");
+            echo json_encode(array(
+                'driver_id_recieved' => $driver_id,
+                'startPoint' => $begin,
+                'endPoint' => $destination,
+                'distance_recieved' => $distance,
+            ));
+            exit;
+        }
+    }
+
+
     public function form()
     {
         include __DIR__ . '/../views/Forms/order_form.php';

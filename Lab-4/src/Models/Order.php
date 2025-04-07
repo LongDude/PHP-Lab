@@ -45,6 +45,21 @@ class Order
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getAvaliableRides(array $filter, $distance = null): array
+    {
+        $builder = new RequestBuilder("SELECT d.name as driver_name, d.id as driver_id, d.rating as rating, t.name as tariff_name, t.id as tariff_id, (t.base_price + GREATEST(0, :distance - t.base_dist) * t.dist_cost) as price FROM drivers d JOIN tariffs t on d.tariff_id = t.id where 1=1 ", $filter);
+        [$stmt_raw, $prms] = $builder
+        ->exact("tariff_id", "t.id")
+        ->range("rating", "d.rating")
+        ->build();
+
+        $prms['distance'] = $distance ?? 0;
+        $stmt = $this->pdo->prepare($stmt_raw);
+        $stmt->execute($prms);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
     public function addOrder(
         string $phone,
         string $from_loc,

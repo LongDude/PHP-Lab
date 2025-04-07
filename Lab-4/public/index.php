@@ -19,6 +19,9 @@ $router->get('/orders', [$orders, 'index']);
 $router->get('/orders/all', [$orders, 'getAll']);
 $router->get('/orders/add', [$orders, 'form']);
 $router->post('/orders/add', [$orders, 'addOrder']);
+$router->get('/orderTaxi', [$orders, 'orderTaxi']);
+$router->post('/orderTaxi', [$orders, 'orderTaxi']);
+
 
 $tariffs = new TariffController();
 $router->get('/tariffs', [$tariffs, 'index']);

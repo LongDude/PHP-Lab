@@ -29,24 +29,26 @@ class RequestBuilder
         return $this;
     }
 
-    public function range($field): RequestBuilder
+    public function range($field, $mask=null): RequestBuilder
     {
+        // field - how it is written in filter
+        // mask - how it will be presented in SLQ query
         if ($field !== "" and isset($this->context[$field])){
             $lowerbound = $this->context[$field]['from'] ?? "";
             $upperbound = $this->context[$field]['to'] ?? "";
             if ($lowerbound == "" and $upperbound !== ""){
                 // Only upperbound
-                $this->stmt .= "AND $field <= :$field" . "_to" . " ";
+                $this->stmt .= "AND ".($mask??$field)." <= :$field" . "_to" . " ";
                 $this->prms[":$field" . "_to"] = $upperbound;
             }
             if ($lowerbound != "" and $upperbound == ""){
                 // Only lowerbound
-                $this->stmt .= "AND $field >= :$field" . "_from" . " ";
+                $this->stmt .= "AND ".($mask??$field)." >= :$field" . "_from" . " ";
                 $this->prms[":$field" . "_from"] = $lowerbound;
             }
             if ($lowerbound !== "" and $upperbound !== ""){
                 // Both
-                $this->stmt .= "AND $field BETWEEN :$field" . "_from" . " AND :$field" . "_to" . " ";
+                $this->stmt .= "AND ".($mask??$field)." BETWEEN :$field" . "_from" . " AND :$field" . "_to" . " ";
                 $this->prms[":$field" . "_from"] = $lowerbound;
                 $this->prms[":$field" . "_to"] = $upperbound;
             }
