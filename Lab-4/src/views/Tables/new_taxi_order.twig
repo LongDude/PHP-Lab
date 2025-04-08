@@ -31,7 +31,7 @@
     <main class="articles-panel">
         <h2>Список доступных водителей</h2>
         {% for order in avaliable_orders %}
-        <article class="avaliable-order" data-driverId="{{ order.driver_id }}" data-tariffId="{{ order.tariff_id }}" data-price="{{ order.price }}" onclick="handleDriverSelection(this)">
+        <article class="avaliable-order" data-driverId="{{ order.driver_id }}" data-tariffId="{{ order.tariff_id }}" data-price="{{ order.price }}">
             <span>{{ order.driver_name }}</span>
             <span>{{ order.rating }}</span>
             <span>{{ order.tariff_name}}</span>

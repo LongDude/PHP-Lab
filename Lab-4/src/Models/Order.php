@@ -65,18 +65,16 @@ class Order
         string $from_loc,
         string $dest_loc,
         float $distance,
-        int $driver_id,
-        int $tariff_id,
+        int $driver_id
     ): bool {
-        $stmt = $this->pdo->prepare("INSERT INTO orders (phone, from_loc, dest_loc, distance, driver_id, tariff_id) VALUES (:phone, :from_loc, :dest_loc, :distance, :driver_id, :tariff_id)");
+        $stmt = $this->pdo->prepare("INSERT INTO orders (phone, from_loc, dest_loc, distance, driver_id) VALUES (:phone, :from_loc, :dest_loc, :distance, :driver_id)");
 
         $res = $stmt->execute(array(
             ':phone' => $phone,
             ':from_loc' => $from_loc,
             ':dest_loc' => $dest_loc,
             ':distance' => $distance,
-            ':driver_id' => $driver_id,
-            ':tariff_id' => $tariff_id,
+            ':driver_id' => $driver_id
         ));
         return $res;
     }

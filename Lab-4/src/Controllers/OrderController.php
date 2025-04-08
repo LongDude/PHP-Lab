@@ -96,17 +96,25 @@ class OrderController
                 );
             }
         elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            header('Content-type: application/json');
             $driver_id = trim($_POST['driver_id'] ?? "");
             $begin = trim($_POST['startPoint'] ?? "");
             $destination = trim($_POST['endPoint'] ?? "");
             $distance = trim($_POST['distance'] ?? "");
-            echo json_encode(array(
-                'driver_id_recieved' => $driver_id,
-                'startPoint' => $begin,
-                'endPoint' => $destination,
-                'distance_recieved' => $distance,
-            ));
+
+
+            $success = $this->model->addOrder(
+                'TEMPORAL-VALUE',
+                $begin,
+                $destination,
+                $distance,
+                $driver_id,
+            );
+            if ($success) {
+                $_SESSION['message'] = "New record added!\n";
+            } else {
+                $_SESSION['message'] = "An error occured\n";
+            }
+            http_response_code(200);
             exit;
         }
     }
@@ -162,8 +170,7 @@ class OrderController
             $from_loc,
             $dest_loc,
             (float) $distance,
-            (int) $driver_id,
-            (int) $tariff_id,
+            (int) $driver_id
         );
 
         if ($success) {

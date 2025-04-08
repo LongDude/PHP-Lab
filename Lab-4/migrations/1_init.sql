@@ -1,5 +1,6 @@
 SET GLOBAL time_zone = 'Europe/Moscow';
-
+SET NAMES utf8;
+ALTER DATABASE php_taxi_service CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 create table if not exists tariffs (
     id serial primary key,
     name varchar(20) not null,
@@ -12,7 +13,7 @@ create table if not exists tariffs (
 
 create table if not exists drivers (
     id serial primary key,
-    name varchar(50) not null,
+    name varchar(100) not null,
     phone varchar(20) not null unique,
     email varchar(100) not null unique,
     intership smallint unsigned default 0 not null check (intership>=0 and intership<=80),
@@ -29,7 +30,7 @@ create table if not exists orders (
     dest_loc varchar(24) not null,
     distance float default 0 not null,
     price float default 0 not null,
-    phone varchar(20) not null,
+    phone varchar(20) null,
     orderedAt datetime default CURRENT_TIMESTAMP,
     deportedAt datetime null,
     deliverAt datetime null,
@@ -47,3 +48,14 @@ create table if not exists orders (
 --     SET NEW.orderedAt = NOW();
 -- END ;;
 -- DELIMITER ; 
+
+
+-- TRIGGER - new order
+DELIMITER ;;
+create trigger `new_order` BEFORE INSERT ON `orders` FOR EACH ROW
+BEGIN
+    SET NEW.tariff_id = (SELECT d.tariff_id from drivers d where d.id = NEW.driver_id LIMIT 1);
+    SET NEW.orderedAt = NOW();
+    SET NEW.price = ( SELECT (t.base_price + GREATEST(0, NEW.distance - t.base_dist) * t.dist_cost) FROM tariffs t where t.id = NEW.tariff_id );
+END ;;
+DELIMITER ; 

@@ -32,12 +32,12 @@ document.addEventListener('DOMContentLoaded', () => {
         map.setView([52.6052, 39.5949], 13);
     }
 
-    if (urlParams.has('firstPoint') && urlParams.get('firstPoint') != ''){
+    if (urlParams.has('firstPoint') && urlParams.get('firstPoint') != 'undefined'){
         let latLng = JSON.parse(urlParams.get('firstPoint'));
         setStartPoint(latLng); 
     }
 
-    if (urlParams.has('lastPoint' && urlParams.get('lastPoint') != '')){
+    if (urlParams.has('lastPoint' && urlParams.get('lastPoint') != 'undefined')){
         let latLng = JSON.parse(urlParams.get('lastPoint'));
         setEndPoint(latLng); 
     }
@@ -53,6 +53,9 @@ document.addEventListener('DOMContentLoaded', () => {
             clearRoute();
         }
     });
+
+    document.querySelectorAll(".avaliable-order").forEach((el) => el.addEventListener('click', (e) => handleDriverSelection(el)))
+
 });
 
 function setStartPoint(latlng) {
@@ -89,7 +92,7 @@ async function calculateAndDrawRoute() {
         const data = await response.json();
         
         if (data.paths?.[0]?.points?.coordinates) {
-            route_distance = data.paths[0].distance;
+            route_distance = data.paths[0].distance / 1000;
             drawRoute(data.paths[0].points.coordinates);
         }
     } catch (error) {
@@ -133,8 +136,8 @@ document.getElementById('filter-orders').addEventListener('click', function(d) {
 
     const params = new URLSearchParams({
         viewState: JSON.stringify({center: map.getCenter(), zoom: map.getZoom()}),
-        firstPoint: JSON.stringify(route_start??''),
-        lastPoint: JSON.stringify(route_end??''),
+        firstPoint: JSON.stringify(route_start),
+        lastPoint: JSON.stringify(route_end),
         distance: JSON.stringify(route_distance??'')
     })
 
@@ -162,8 +165,8 @@ function handleDriverSelection(element) {
     
     
     selectedDriver = element;
-    driver_id = element.dataset.driverId;
-    tariff_id = element.dataset.tariffId;
+    driver_id = element.dataset.driverid;
+    tariff_id = element.dataset.tariffid;
     price = element.dataset.price;
 }
 
@@ -173,49 +176,28 @@ function submitDriverSelection() {
         return;
     }
     
-    // Get coordinates from map
-    const beginCoords = startMarker.getLatLng();
-    const endCoords = endMarker.getLatLng();
-    
-    // Get distance from routing control (if available)
-    let distance = 0;
-    const route = routingControl.getPlan();
-    if (route) {
-        distance = route.summary.totalDistance;
-    } else {
-        // Fallback to direct distance if no route
-        distance = map.distance(beginCoords, endCoords);
-    }
-    
     // Prepare form data
     const formData = new FormData();
     formData.append('driver_id', driver_id);
     formData.append('tariff_id', tariff_id);
     formData.append('price', price);
-    formData.append('begin', `${beginCoords.lng.toFixed(5)};${beginCoords.lat.toFixed(5)}`);
-    formData.append('destination', `${endCoords.lng.toFixed(5)};${endCoords.lat.toFixed(5)}`);
-    formData.append('distance', distance.toFixed(0));
+    formData.append('startPoint', `${route_start.lng.toFixed(5)};${route_start.lat.toFixed(5)}`);
+    formData.append('endPoint', `${route_end.lng.toFixed(5)};${route_end.lat.toFixed(5)}`);
+    formData.append('distance', route_distance.toFixed(0));
     
     // Send AJAX request
     fetch('', {
         method: 'POST',
         body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error('Network response was not ok');
+            throw new Error('error');
+            alert("Ошибка при отправке на сервер");
         }
-        return response.json();
-    })
-    .then(data => {
-        // Handle successful response
-        if (data.success) {
-            console.log(data)
-        } else {
-            alert(data.message || 'Произошла ошибка');
+        else {
+            alert("Заказ успешно оформлен. Ожидайте. За вами уже выехали");
+            window.location.assign(`${window.location.pathname}`);
         }
     })
     .catch(error => {
