@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+    <link rel="stylesheet" href="/leaflet.css"/>
+    <link rel="stylesheet" href="/leaflet-routing-machine.css"/>
     <link rel="stylesheet" href="/style.css">
     <title>Новая поездка</title>
 </head>
 <body>
-    <div id="map" style="height: 500px; width: 500px;"></div>
     <aside class="filter-panel">
+    <div id="map" style="height: 500px; width: 500px;"></div>
+        <script src="/js/leaflet.js"></script>
         <script type="module" src="/js/graphhopper.js" defer></script>
         <form action="" method="get">
             <div class="filter-single-group">
@@ -37,6 +38,9 @@
             <span>{{ order.tariff_name}}</span>
             <span>{{ order.price }}</span>
         </article>
+        {% else %}
+        
+        <article><h3>Нет доступных водителей<h3</article>
         {% endfor %}
     </main>
 </body>

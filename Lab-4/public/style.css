@@ -98,3 +98,41 @@ input:invalid,
 #submit {
     margin-top: 20px;
 }
+
+.articles-panel {
+    display: flex;
+    flex-direction: column;
+    align-content: flex-start;
+    gap: 5px;
+}
+
+.articles-panel article {
+    text-align: center;
+    padding: 2px;
+    border-spacing: 0px;
+    border-collapse: collapse;
+    margin: 0px;
+    gap: 0px;
+
+    display: grid;
+    grid-template-columns: 300px 100px 100px 100px;
+
+    border-radius: 5px;
+}
+
+.articles-panel article span {
+    display: block;
+}
+
+.articles-panel article span:nth-child(1) {
+    text-align: left;
+}
+
+.articles-panel article:hover {
+    background-color: #d82929;
+    cursor: pointer;
+}
+
+.order-selected {
+    background-color: #bd6f41;
+}

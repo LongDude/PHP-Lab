@@ -1,4 +1,3 @@
-import L from 'https://esm.sh/leaflet@1.9.4';
 
 // Глобальные переменные
 window.routeData = {
@@ -63,7 +62,7 @@ function setStartPoint(latlng) {
     if (startMarker) map.removeLayer(startMarker);
     startMarker = L.marker(latlng, {
         icon: L.icon({
-            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+            iconUrl: './assets/marker-icon-2x-green.png',
             iconSize: [25, 41]
         })
     }).addTo(map);
@@ -74,7 +73,7 @@ function setEndPoint(latlng) {
     if (endMarker) map.removeLayer(endMarker);
     endMarker = L.marker(latlng, {
         icon: L.icon({
-            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+            iconUrl: './assets/marker-icon-2x-red.png',
             iconSize: [25, 41]
         })
     }).addTo(map);
