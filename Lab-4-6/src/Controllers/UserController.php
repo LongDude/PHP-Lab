@@ -19,17 +19,8 @@ class UserController{
         $this->twig = new Environment($loader);
     }
 
-    public function getAll()
-    {
-
-    }
-
-    public function getUser()
-    {
-        session_start();
-    }
-
-    public function auth(){
+    public function login(){
+        // TODO
         session_start();
         if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             include __DIR__ . '/../views/Forms/login.php';
@@ -51,6 +42,10 @@ class UserController{
         // If _GET['asDriver']: register driver
         session_start();
 
+    }
+
+    public function edit(){
+        
     }
 }
 ?>
