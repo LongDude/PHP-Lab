@@ -36,8 +36,6 @@ class OrderController
 
     public function index()
     {
-        session_start();
-
         [$filter, $err] = OrderValidator::validateFilter($_GET);
         $list = $this->model->getListFiltered($filter);
 
@@ -180,6 +178,13 @@ class OrderController
         }
         header("Location: /orders/add");
         exit;
+    }
+
+    public function getRides(){
+        // TODO GET
+    }
+    public function getOrders(){
+        // TODO GET
     }
 }
 ?>

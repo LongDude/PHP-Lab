@@ -1,0 +1,12 @@
+{% block messages %}    
+    <script>
+        window.onload = () => {
+            {% if message is not null and message is not empty %}
+                alert("{{ message }}");
+            {% endif %}
+            {% if error is not null and error is not empty %}
+                console.error("{{ error }}");
+            {% endif %}
+        }
+    </script>
+{% endblock %}

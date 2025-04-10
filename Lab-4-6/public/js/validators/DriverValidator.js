@@ -1,40 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("form").addEventListener("submit", (event));
-    const nameInput = document.getElementById('name');
-    const phoneInput = document.getElementById('phone');
-    const emailInput = document.getElementById('email');
     const intershipInput = document.getElementById('intership');
     const car_licenseInput = document.getElementById('car_license');
     const car_brandInput = document.getElementById('car_brand');
     const tariff_idInput = document.getElementById('tariff_id');
     const csvFileInput = document.getElementById('csv-file');
     
-    const nameValidator = new FormValidator(
-        nameInput,
-        (event) => {
-            let val = event.target.value;
-            let m = val.match(/[a-zа-я ]{0,20}$/i)
-            if (!m) {
-                event.target.value = "";
-            } else {
-                event.target.value = m[0];
-            }
-        },
-        (value) => (/\w{3,20}$/.test(value)),
-    )
-
-    const phoneValidator = new FormValidator(
-        phoneInput,
-        BasicValidators.phonePassiveValidator,
-        BasicValidators.phoneActiveValidator,
-    )
-    
-    const emailValidator = new FormValidator(
-        emailInput,
-        BasicValidators.emailPassiveValidator,
-        BasicValidators.emailActiveValidator
-    )
-
     const intershipValidator = new FormValidator(
         intershipInput,
         BasicValidators.posNumberPassiveValidator,
@@ -73,9 +44,6 @@ function onSubmit(event) {
     let isValid = true;
     // Проверяем весь пак валидаторов
     [
-        nameValidator,
-        phoneValidator,
-        emailValidator,
         intershipValidator,
         car_licenseValidator,
         car_brandValidator,

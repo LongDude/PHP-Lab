@@ -27,27 +27,25 @@ class Driver
 
     public function getList(): array
     {
-        $stmt = $this->pdo->prepare("SELECT d.name as name, phone, email, intership, car_license, car_brand, t.name as tariff_name FROM drivers d INNER JOIN tariffs t on t.id = d.tariff_id");
+        $stmt = $this->pdo->prepare("SELECT u.name as name, u.phone, u.email, intership, car_license, car_brand, t.name as tariff_name FROM drivers d INNER JOIN tariffs t on t.id = d.tariff_id INNER JOIN users u on u.id = d.user_id");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getEntries(): array {
-        $stmt = $this->pdo->prepare("SELECT id, name FROM drivers");
+        $stmt = $this->pdo->prepare("SELECT d.id as id, u.name as name FROM drivers d JOIN users u on u.id = d.user_id");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getListFiltered(array $filter): array
     {
-        $builder = new RequestBuilder("SELECT d.name as name, d.phone, d.email, d.intership, d.car_license, d.car_brand, t.name as tariff_name FROM drivers d INNER JOIN tariffs t on t.id = d.tariff_id where 1=1 ", $filter);
+        $builder = new RequestBuilder("SELECT u.name as name, u.phone, u.email, d.intership, d.car_license, d.car_brand, t.name as tariff_name FROM drivers d INNER JOIN tariffs t on t.id = d.tariff_id INNER JOIN users u on u.id = d.user_id where 1=1 ", $filter);
         [$stmt_raw, $prms] = $builder
-            ->stringFuzzy("name", "d.name")
-            ->stringFuzzy("phone")
-            ->stringFuzzy("email")
-            // ->range("intership")
+            ->stringFuzzy("name", "u.name")
+            ->stringFuzzy("phone", "u.phone")
+            ->stringFuzzy("email", "u.email")
             ->exact("car_license")
-            // ->stringFuzzy("car_brand")
             ->exact("tariff_id")
             ->build();
 
@@ -57,19 +55,15 @@ class Driver
     }
 
     public function addDriver(
-        string  $name,
-        string  $phone,
-        string  $email,
+        string $user_id,
         int     $intership,
         string  $car_license,
         string  $car_brand,
         int     $tariff_id
     ): bool {
-        $stmt = $this->pdo->prepare("INSERT INTO drivers (name, phone, email, intership, car_license, car_brand, tariff_id) VALUES (:name, :phone, :email, :intership, :car_license, :car_brand, :tariff_id)");
+        $stmt = $this->pdo->prepare("INSERT INTO drivers (user_id, intership, car_license, car_brand, tariff_id) VALUES (:user_id, :intership, :car_license, :car_brand, :tariff_id)");
         $res = $stmt->execute(array(
-            ':name' => $name,
-            ':phone' => $phone,
-            ':email' => $email,
+            ':user_id' => $user_id,
             ':intership' => $intership,
             ':car_license' => $car_license,
             ':car_brand' => $car_brand,
@@ -78,20 +72,42 @@ class Driver
         return $res;
     }
 
+    public function editDriver(
+        string  $driver_id,
+        int     $intership,
+        string  $car_license,
+        string  $car_brand,
+        int     $tariff_id
+    ): bool {
+        $stmt = $this->pdo->prepare("UPDATE drivers SET intership:=intership, car_license:=car_license, car_brand:=car_brand, tariff_id:=tariff_id where id=:driver_id");
+        $res = $stmt->execute(array(
+            ':driver_id' => $driver_id,
+            ':intership' => $intership,
+            ':car_license' => $car_license,
+            ':car_brand' => $car_brand,
+            ':tariff_id' => $tariff_id,
+        ));
+        return $res;
+    }
+
+    public function getDriver(string $user_id){
+        $stmt = $this->pdo->prepare("SELECT * from drivers where user_id=:user_id");
+        $stmt -> execute([':user_id' => $user_id]);
+        return $stmt->fetch();
+    }
+
     public function importCsv(string $path): bool
     {
         $file = fopen($path, "r");
         if ($file) {
             while (($row = fgetcsv($file, 1000, ",")) != false) {
-                $stmt = $this->pdo->prepare("INSERT INTO drivers (name, phone, email, intership, car_license, car_brand, tariff_id) VALUES (:name, :phone, :email, :intership, :car_license, :car_brand, :tariff_id)");
+                $stmt = $this->pdo->prepare("INSERT INTO drivers (user_id, intership, car_license, car_brand, tariff_id) VALUES (:user_id, :intership, :car_license, :car_brand, :tariff_id)");
                 $res = $stmt->execute(array(
-                    ':name' => $row[0],
-                    ':phone' => $row[1],
-                    ':email' => $row[2],
-                    ':intership' => $row[3],
-                    ':car_license' => $row[4],
-                    ':car_brand' => $row[5],
-                    ':tariff_id' => $row[6],
+                    ':user_id' => $row[0],
+                    ':intership' => $row[1],
+                    ':car_license' => $row[2],
+                    ':car_brand' => $row[3],
+                    ':tariff_id' => $row[4],
                 ));
             }
             fclose($file);

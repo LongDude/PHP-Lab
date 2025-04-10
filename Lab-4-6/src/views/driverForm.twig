@@ -1,9 +1,3 @@
-<?php
-
-use src\Models\Tariff;
-session_start();
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -12,46 +6,39 @@ session_start();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/style.css">
     <script src="/js/core.js" defer></script>
+    <script src="/js/validators/UserValidator.js" defer></script>
     <script src="/js/validators/DriverValidator.js" defer></script>
     <title>Такси сервис "Туда-Сюда"</title>
 </head>
 
 <body>
-    <script>
-        window.onload = () => {
-            let message = <?= json_encode($_SESSION['message'] ?? '') ?>;
-            let err = <?= json_encode($_SESSION['error'] ?? '') ?>
-
-            if (message) {
-                alert(message);
-            }
-
-            if (err) {
-                console.error(err);
-            }
-            <?php
-            $_SESSION['message'] = '';
-            $_SESSION['error'] = '';
-            ?>
-        }
-    </script>
+    {{ block ("messages", "_messaging.twig")}}
     <main class="main-panel">
-        <h1>Регистрация водителей</h1>
-        <form action="add" method="post" name="form" id="form" enctype="multipart/form-data">
+        <h1>{{ form_title }}</h1>
+        <form action="{{ callback }}" method="post" name="form" id="form" enctype="multipart/form-data">
             <div class="input-group">
                 <label for="name">Имя:</label>
-                <input type="text" name="name" id="name" placeholder="Василий Пупкин">
+                <input type="text" name="name" id="name" placeholder="Василий Пупкин" value={{username}}>
                 <!-- <label for="name" class="input-info"></label> -->
             </div>
             <div class="input-group">
                 <label for="phone">Контактный номер:</label>
-                <input type="text" name="phone" id="phone" placeholder="+7 (123) 456-78-90">
+                <input type="text" name="phone" id="phone" placeholder="+7 (123) 456-78-90" value={{phone}}>
                 <!-- <label for="phone" class="input-info"></label> -->
             </div>
             <div class="input-group">
                 <label for="email">Почтовый адрес:</label>
-                <input type="email" name="email" id="email" placeholder="abc@xyz.com">
+                <input type="email" name="email" id="email" placeholder="abc@xyz.com" value={{email}}>
                 <!-- <label for="email" class="input-info"></label> -->
+            </div>
+            <div class="input-group">
+                <label for="password">Пароль:</label>
+                <input type="password" name="password" id="password">
+                <label for="password" class="input-info">Латинница, 8 символов, 1 заглавная буква, 1 цифра, 1 спец символ</label>
+            </div>
+            <div class="input-group">
+                <label for="repeat_password">Повтор пароля:</label>
+                <input type="password" name="repeat_password" id="repeat_password">
             </div>
             <div class="input-group">
                 <label for="intership">Стаж:</label>
@@ -71,9 +58,9 @@ session_start();
             <div class="input-group">
                 <label for="tariff_id">Тариф:</label>
                 <select name="tariff_id" id="tariff_id">
-                    <?php foreach (new Tariff()->getEntries() as $value): ?>
-                        <option value="<?= $value['id'] ?>"><?= $value['name'] ?></option>
-                    <?php endforeach; ?>
+                    {% for tariff in avaliable_tariffs %}
+                        <option value="{{ tariff.id }}" {% if tariff.id == tariff_id %}selected="selected"{% endif %}>{{ tariff.name }}</option>
+                    {% endfor %}
                 </select>
                 <!-- <label for="tariff_id"></label> -->
             </div>

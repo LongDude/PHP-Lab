@@ -13,9 +13,7 @@ class Tariff
         'name',
         'base_price',
         'base_dist',
-        'base_time',
         'dist_cost',
-        'time_cost',
     );
     public function __construct()
     {
@@ -24,7 +22,7 @@ class Tariff
 
     public function getList(): array
     {
-        $stmt = $this->pdo->prepare("SELECT name, base_price, base_dist, base_time, dist_cost, time_cost FROM tariffs");
+        $stmt = $this->pdo->prepare("SELECT name, base_price, base_dist, dist_cost FROM tariffs");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -52,18 +50,14 @@ class Tariff
         string $name,
         float $base_price,
         float $base_dist,
-        float $base_time,
         float $dist_cost,
-        float $time_cost
     ): bool {
-        $stmt = $this->pdo->prepare("INSERT INTO tariffs (name, base_price, base_dist, base_time, dist_cost, time_cost) VALUES (:name, :base_price, :base_dist, :base_time, :dist_cost, :time_cost)");
+        $stmt = $this->pdo->prepare("INSERT INTO tariffs (name, base_price, base_dist, dist_cost) VALUES (:name, :base_price, :base_dist, :dist_cost)");
         $res = $stmt->execute(array(
             ':name' => $name,
             ':base_price' => $base_price,
             ':base_dist' => $base_dist,
-            ':base_time' => $base_time,
             ':dist_cost' => $dist_cost,
-            ':time_cost' => $time_cost,
         ));
         return $res;
     }
@@ -73,14 +67,12 @@ class Tariff
         $file = fopen($path, "r");
         if ($file) {
             while (($row = fgetcsv($file, 1000, ",")) != false) {
-                $stmt = $this->pdo->prepare("INSERT INTO tariffs (name, base_price, base_dist, base_time, dist_cost, time_cost) VALUES (:name, :base_price, :base_dist, :base_time, :dist_cost, :time_cost)");
+                $stmt = $this->pdo->prepare("INSERT INTO tariffs (name, base_price, base_dist, dist_cost) VALUES (:name, :base_price, :base_dist, :dist_cost)");
                 $res = $stmt->execute(array(
                     ':name' => $row[0],
                     ':base_price' => $row[1],
                     ':base_dist' => $row[2],
-                    ':base_time' => $row[3],
-                    ':dist_cost' => $row[4],
-                    ':time_cost' => $row[5],
+                    ':dist_cost' => $row[3],
                 ));
             }
             fclose($file);

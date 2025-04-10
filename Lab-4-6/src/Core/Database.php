@@ -23,7 +23,9 @@ class Database
                 "mysql:host=" . Database::host . ";dbname=" . $_ENV["MYSQL_DATABASE"],
                 $_ENV['MYSQL_USER'],
                 $_ENV['MYSQL_PASSWORD'],
-                [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+                [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]
             );
 
             self::$pdo->exec("set names utf8");

@@ -20,13 +20,22 @@ class TariffController
         $this->twig = new Environment($loader);
     }
 
-    public function getAll()
+    public function getTariffsTable()
     {
-        $list = $this->model->getList();
+        [$filter, $err] = TariffValidator::validateFilter($_GET);
+        $list = $this->model->getListFiltered($filter);
+
+        if ($err !== '') {
+            $_SESSION['error'] = $err;
+        }
+
         echo $this->twig->render(
-            'Tables/tariffs_list.twig',
+            'tariffs.twig',
             [
-                'tariffs' => $list
+                'tariffs' => $list,
+                'name' => $filter["name"] ?? "",
+                'base_price_from' => $filter["base_price"]["from"] ?? "",
+                'base_price_to' => $filter["base_price"]["to"] ?? "",
             ]
         );
     }
@@ -40,8 +49,6 @@ class TariffController
 
     public function index()
     {
-        session_start();
-
         [$filter, $err] = TariffValidator::validateFilter($_GET);
         $list = $this->model->getListFiltered($filter);
 
@@ -50,7 +57,7 @@ class TariffController
         }
 
         echo $this->twig->render(
-            'Tables/tariffs_table.twig',
+            'tariffs.twig',
             [
                 'tariffs' => $list,
                 'name' => $filter["name"] ?? "",
@@ -60,18 +67,21 @@ class TariffController
         );
     }
 
-    public function form()
+    public function get_tariff_form()
     {
-        include __DIR__ . '/../views/Forms/tariff_form.php';
+        echo $this->twig->render(
+            'addTariff.twig',
+            [
+                'message' => $_SESSION['message'] ?? '',
+                'error' => $_SESSION['error'] ?? '',
+            ]
+        );
     }
 
-    public function addTariff()
+    public function post_tariff_form()
     {
-        session_start();
-
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] != 'POST') {
             header("Location: /tariffs/add");
-            exit;
         }
 
         if (isset($_FILES['csv-file']) && $_FILES['csv-file']['error'] === UPLOAD_ERR_OK) {
@@ -109,9 +119,7 @@ class TariffController
             $name,
             (float) $base_price,
             (float) $base_dist,
-            (float) $base_time,
             (float) $dist_cost,
-            (float) $time_cost,
         );
 
         if ($success) {
@@ -122,5 +130,8 @@ class TariffController
         header("Location: /tariffs/add");
         exit;
     }
+
+
+
 }
 ?>

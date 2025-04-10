@@ -1,7 +1,6 @@
 <?php
 
 namespace src\Models;
-use PDOException;
 use src\Core\Database;
 use PDO;
 use src\Models\RequestBuilder;
@@ -34,7 +33,7 @@ class Order
 
     public function getListFiltered(array $filter): array
     {
-        $builder = new RequestBuilder("SELECT o.phone as phone, from_loc, dest_loc, distance, orderedAt, d.name as driver_name, t.name as tariff_name FROM orders o INNER JOIN tariffs t ON t.id = o.tariff_id INNER JOIN drivers d on d.id = o.driver_id where 1=1 ", $filter);
+        $builder = new RequestBuilder("SELECT (select phone from users u where u.id = o.user_id) as phone, from_loc, dest_loc, distance, orderedAt, (SELECT name from users u where o.driver_id = u.id) as driver_name, t.name as tariff_name FROM orders o INNER JOIN tariffs t ON t.id = o.tariff_id  where 1=1 ", $filter);
         [$stmt_raw, $prms] = $builder
             ->range("orderedAt")
             ->exact("tariff_id", "o.tariff_id")

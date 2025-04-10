@@ -9,7 +9,6 @@ use src\Controllers\OrderController;
 use src\Controllers\TariffController;
 $router = new Router();
 
-
 $session = new SessionController();
 $user = new UserController();
 $drivers = new DriverController();
@@ -17,13 +16,12 @@ $orders = new OrderController();
 $tariffs = new TariffController();
 
 // session
-$router->get('/', [$session, 'index']);
+$router->get('/', [$session, 'index'], ['user', 'admin', 'driver'], '/login');
 
 // auth
-$router->get('/login', [$session, 'login']);
-$router->post('/login', [$session, 'login']);
+$router->get('/login', [$session, 'get_login']);
+$router->post('/login', [$session, 'post_login']);
 $router->get('/logout', [$session, 'logout']);
-
 
 // registration 
 $router->get('/register/user', [$user, 'register']);
@@ -42,33 +40,25 @@ $router->get('/editProfile/driver', [$drivers, 'edit']);
 $router->put('/editProfile/driver', [$drivers, 'edit']);
 
 // users - 
-$router->get('/orderTazic', [$orders, 'orderTaxi']);
-$router->post('/orderTazic', [$orders, 'orderTaxi']);
+$router->get('/orderTazic', [$orders, 'orderTaxi'], ['user', 'admin', 'driver']);
+$router->post('/orderTazic', [$orders, 'orderTaxi'], ['user', 'admin', 'driver']);
+$router->get('/tariffs/list', [$tariffs, 'getTariffsTable'], ['admin']);
+
 
 // tables for users and drivers
 $router->get('/orders/ridesHistory', [$orders, 'getRides']);
 $router->get('/orders/orderHistory', [$orders, 'getOrders']);
 
 // tables for admin
-$router->get('/orders', [$orders, 'index']);
-$router->get('/drivers', [$drivers, 'index']);
-$router->get('/users', [$users, 'index']);
+$router->get('/orders', [$orders, 'index'], ['admin']);
+$router->get('/drivers', [$drivers, 'index'], ['admin']);
+$router->get('/users', [$user, 'index'], ['admin']);
 
 
 // tariff manipulation for admin
-$router->get('/tariffs', [$tariffs, 'index']);
-$router->get('/tariffs/add', [$tariffs, 'form']);
-$router->post('/tariffs/add', [$tariffs, 'addTariff']);
-
-// ! OLD ARHCITECTURE
-// $router->get('/drivers/add', [$drivers, 'form']);
-// $router->post('/drivers/add', [$drivers, 'addDriver']);
-// $router->get('/orders/all', [$orders, 'getAll']);
-
-// $router->get('/orders/add', [$orders, 'form']);
-// $router->post('/orders/add', [$orders, 'addOrder']);
-// $router->get('/orderTazic', [$orders, 'orderTaxi']);
-
+$router->get('/tariffs', [$tariffs, 'getTariffsTable'], ['admin']);
+$router->get('/tariffs/add', [$tariffs, 'get_tariff_form'], ['admin']);
+$router->post('/tariffs/add', [$tariffs, 'post_tariff_form'], ['admin']);
 
 $router->resolve();
 

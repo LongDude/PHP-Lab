@@ -10,9 +10,7 @@ class TariffValidator implements ModelValidator
         $name = trim($data['name'] ?? '');
         $base_price = trim($data['base_price'] ?? '');
         $base_dist = trim($data['base_dist'] ?? '');
-        $base_time = trim($data['base_time'] ?? '');
         $dist_cost = trim($data['dist_cost'] ?? '');
-        $time_cost = trim($data['time_cost'] ?? '');
         $err = "";
 
         if (strlen($name) == 0 || strlen($name) > 20) {
@@ -27,16 +25,8 @@ class TariffValidator implements ModelValidator
             $err .= "INVALID base_dist DATA;";
         }
 
-        if (!is_numeric($base_time) or $base_time < 0) {
-            $err .= "INVALID base_time DATA;";
-        }
-
         if (!is_numeric($dist_cost) or $dist_cost < 0) {
             $err .= "INVALID dist_cost DATA;";
-        }
-
-        if (!is_numeric($time_cost) or $time_cost < 0) {
-            $err .= "INVALID time_cost DATA;";
         }
 
         return $err;

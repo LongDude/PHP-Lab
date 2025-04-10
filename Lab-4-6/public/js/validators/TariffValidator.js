@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("form").addEventListener("submit", (event));
+    document.getElementById("form").addEventListener("submit", (event) => onSubmit(event));
     const nameInput = document.getElementById('name');
     const base_priceInput = document.getElementById('base_price');
     const base_distInput = document.getElementById('base_dist');
