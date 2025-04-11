@@ -7,16 +7,14 @@ class OrderValidator  implements ModelValidator
 {
     public static function validateData(array $data): string
     {
-        $phone = trim($data['phone'] ?? '');
         $from_loc = trim($data['from_loc'] ?? '');
         $dest_loc = trim($data['dest_loc'] ?? '');
         $distance = trim($data['distance'] ?? '');
+        $user_id = trim($data['user_id'] ?? '');
         $driver_id = trim($data['driver_id'] ?? '');
         $tariff_id = trim($data['tariff_id'] ?? '');
         $err = "";
         
-        $err .= BaseValidators::phoneValidator($phone);
-
         if(!preg_match("/-?\d{1,3}\.\d{6};-?\d{1,3}\.\d{6}/", $from_loc)){
             $err .= "INVALID from_loc DATA;";
         }
@@ -27,6 +25,10 @@ class OrderValidator  implements ModelValidator
 
         if(!is_numeric($distance) or $distance < 0){
             $err .= "INVALID distance DATA;";
+        }
+
+        if(!is_numeric($user_id) or $user_id < 0){
+            $err .= "INVALID driver_id DATA;";
         }
 
         if(!is_numeric($driver_id) or $driver_id < 0){
@@ -74,13 +76,13 @@ class OrderValidator  implements ModelValidator
             $err .= "INVALID tariff_id FILTER;";
         }
 
-        if (
-            isset($data['driver_id']) and (
-                !is_numeric($data['driver_id']) || $data['driver_id'] < 0
-            )
-        ) {
-            unset($data['driver_id']);
-            $err .= "INVALID driver_id FILTER;";
+        if (isset($data['name'])) {
+            if (strlen($data['name']) == 0) {
+                $err .= "INVALID name FILTER;";
+                unset($data['name']);
+            } else {
+                $data['name'] = trim($data['name']);
+            }
         }
         return array($data, $err);
     }

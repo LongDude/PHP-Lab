@@ -36,10 +36,10 @@
         <div id="links">
             <div id='user-links'>
                 <a href="/orderTazic">Заказать такси</a>
-                <a href="/tariffs/list">Список тарифов</a>
+                <a href="/tariffs">Список тарифов</a>
                 <a href="/orders/ridesHistory">История поездок</a>
             </div>
-            {% if role == 'driver' or role =='admin' %}
+            {% if role == 'driver' %}
             <div id='driver-links'>
                 <a href="/orders/orderHistory">История заказов</a>
             </div>

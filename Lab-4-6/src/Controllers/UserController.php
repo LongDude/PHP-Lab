@@ -4,7 +4,9 @@ namespace src\Controllers;
 use PDOException;
 use src\Files\BaseUploader;
 use src\Models\User;
-
+use Fawno\FPDF\FawnoFPDF;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use src\Validators\UserValidator;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
@@ -77,7 +79,7 @@ class UserController{
             $_POST['phone'],
             $_POST['email'],
             $_POST['password'],
-            'user',
+            'client',
         );
 
         if ($success) {
@@ -132,7 +134,7 @@ class UserController{
             $_POST['phone'],
             $_POST['email'],
             $_POST['password'],
-            'user',
+            'client',
         );
 
         if ($success) {
@@ -156,6 +158,14 @@ class UserController{
             $_SESSION['error'] = $err;
         }
 
+        if (isset($_GET['type']) && $_GET['type'] === "pdf") {
+            $this->generatePdf($list);
+            $msg = "Отчет успешно составлен\n";
+        } elseif (isset($_GET['type']) && $_GET['type'] == 'excel') {
+            $this->generateExcel($list);
+            $msg = "Отчет успешно составлен\n";
+        }
+
         echo $this->twig->render(
             'users.twig',
             [
@@ -165,6 +175,79 @@ class UserController{
                 'email' => $filter["email"] ?? "",
             ]
         );
+    }
+
+    private function generatePdf(array $data)
+    {
+        $pdf = new FawnoFPDF();
+        $pdf->AddPage();
+        $pdf->SetFont('Arial', 'B', 12);
+        $pdf->Cell(20, 10, 'Телефон клиента', 1);
+        $pdf->Cell(20, 10, 'Начальная точка', 1);
+        $pdf->Cell(20, 10, 'Конечная точка', 1);
+        $pdf->Cell(20, 10, 'Расстояние', 1);
+        $pdf->Cell(20, 10, 'Время заказа', 1);
+        $pdf->Cell(20, 10, 'Имя водителя', 1);
+        $pdf->Cell(20, 10, 'Имя клиента', 1);
+        $pdf->Cell(20, 10, 'Тарифф', 1);
+        $pdf->Cell(20, 10, 'Стоимость', 1);
+
+        $pdf->Ln();
+
+        $pdf->SetFont('Arial', '', 12);
+        foreach ($data as $row) {
+            $pdf->Cell(20, 10, $row['phone'], 1);
+            $pdf->Cell(20, 10, $row['from_loc'], 1);
+            $pdf->Cell(20, 10, $row['dest_loc'], 1);
+            $pdf->Cell(20, 10, $row['distance'], 1);
+            $pdf->Cell(20, 10, $row['orderedAt'], 1);
+            $pdf->Cell(20, 10, $row['driver_name'], 1);
+            $pdf->Cell(20, 10, $row['user_name'], 1);
+            $pdf->Cell(20, 10, $row['tariff_name'], 1);
+            $pdf->Cell(20, 10, $row['price'], 1);
+            $pdf->Ln();
+        }
+        $pdf->Output('D', 'report.pdf');
+    }
+
+    private function generateExcel(array $data)
+    {
+        $spreadsheet = new Spreadsheet();
+        $cells = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $i = 0;
+        $sheet->setCellValue($cells[$i++] . '1', 'Номер телефона');
+        $sheet->setCellValue($cells[$i++] . '1', 'Начальная точка');
+        $sheet->setCellValue($cells[$i++] . '1', 'Конечная точка');
+        $sheet->setCellValue($cells[$i++] . '1', 'Расстояние');
+        $sheet->setCellValue($cells[$i++] . '1', 'Время заказа');
+        $sheet->setCellValue($cells[$i++] . '1', 'Имя водителя');
+        $sheet->setCellValue($cells[$i++] . '1', 'Имя клиента');
+        $sheet->setCellValue($cells[$i++] . '1', 'Тариф');
+        $sheet->setCellValue($cells[$i++] . '1', 'Стоимость');
+
+        $rowIndex = 2;
+        foreach ($data as $row) {
+            $i = 0;
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['phone']);
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['from_loc']);
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['dest_loc']);
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['distance']);
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['orderedAt']);
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['driver_name']);
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['user_name']);
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['tariff_name']);
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['price']);
+            $rowIndex++;
+        }
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="report.xlsx"');
+
+        $writer = new Xlsx($spreadsheet);
+        $writer->save('php://output');
+        exit;
     }
 }
 ?>

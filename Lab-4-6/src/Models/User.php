@@ -22,7 +22,7 @@ class User
         $this->pdo = Database::connect();
     }
 
-    public function indetificate(string $email): array
+    public function indetificate(string $email): mixed
     {
         $stmt = $this->pdo->prepare("SELECT * from users WHERE email=:email");
         $stmt->execute([":email" => $email]);
@@ -35,7 +35,7 @@ class User
         string $phone,
         string $email,
         string $password,
-        string $role = 'user'
+        string $role = 'client'
     ) {
         $stmt = $this->pdo->prepare("INSERT INTO users (name, phone, email, password, role) VALUES (:name, :phone, :email, :password, :role)");
         $res = $stmt->execute(array(
@@ -62,7 +62,7 @@ class User
         string $phone,
         string $email,
         string $password,
-        string $role = 'user'
+        string $role = 'client'
     ): bool {
         $stmt = $this->pdo->prepare("UPDATE users SET name=:name, phone=:phone, email=:email, password=:password, role=:role WHERE id=:user_id");
         $res = $stmt->execute(array(

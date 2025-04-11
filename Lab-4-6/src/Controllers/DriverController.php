@@ -7,7 +7,9 @@ use src\Models\Driver;
 use src\Models\User;
 use src\Models\Tariff;
 use src\Validators\DriverValidator;
-
+use Fawno\FPDF\FawnoFPDF;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use src\Validators\UserValidator;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
@@ -26,16 +28,6 @@ class DriverController
         $this->twig = new Environment($loader);
     }
 
-    public function getAll()
-    {
-        $list = $this->driver_model->getList();
-        echo $this->twig->render(
-            'Tables/drivers_list.twig',
-            [
-                'drivers' => $list
-            ]
-        );
-    }
     
     public function getEntries()
     {
@@ -54,7 +46,7 @@ class DriverController
         }
 
         echo $this->twig->render(
-            'Tables/drivers_table.twig',
+            'drivers.twig',
             [
                 'drivers' => $list,
                 'name' => $filter["name"] ?? "",
@@ -291,5 +283,105 @@ class DriverController
         exit;
     }
 
+    private function generatePdf(array $data, string $reportType)
+    {
+        $pdf = new FawnoFPDF();
+        $pdf->AddPage();
+        $pdf->SetFont('Arial', 'B', 12);
+        if ($reportType != 'history') {
+            $pdf->Cell(20, 10, 'Телефон клиента', 1);
+        }
+        $pdf->Cell(20, 10, 'Начальная точка', 1);
+        $pdf->Cell(20, 10, 'Конечная точка', 1);
+        $pdf->Cell(20, 10, 'Расстояние', 1);
+        $pdf->Cell(20, 10, 'Время заказа', 1);
+
+        if ($reportType != 'rides') {
+            $pdf->Cell(20, 10, 'Имя водителя', 1);
+        }
+        if ($reportType == 'full') {
+            $pdf->Cell(20, 10, 'Имя клиента', 1);
+        }
+
+        $pdf->Cell(20, 10, 'Тарифф', 1);
+        $pdf->Cell(20, 10, 'Стоимость', 1);
+
+        $pdf->Ln();
+
+        $pdf->SetFont('Arial', '', 12);
+        foreach ($data as $row) {
+            if ($reportType != 'history') {
+                $pdf->Cell(20, 10, $row['phone'], 1);
+            }
+            $pdf->Cell(20, 10, $row['from_loc'], 1);
+            $pdf->Cell(20, 10, $row['dest_loc'], 1);
+            $pdf->Cell(20, 10, $row['distance'], 1);
+            $pdf->Cell(20, 10, $row['orderedAt'], 1);
+
+            if ($reportType != 'rides') {
+                $pdf->Cell(20, 10, $row['driver_name'], 1);
+            }
+            if ($reportType == 'full') {
+                $pdf->Cell(20, 10, $row['user_name'], 1);
+            }
+
+            $pdf->Cell(20, 10, $row['tariff_name'], 1);
+            $pdf->Cell(20, 10, $row['price'], 1);
+            $pdf->Ln();
+        }
+        $pdf->Output('D', 'report.pdf');
+    }
+
+    private function generateExcel(array $data, string $reportType)
+    {
+        $spreadsheet = new Spreadsheet();
+        $cells = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $i = 0;
+        if ($reportType != 'history') {
+            $sheet->setCellValue($cells[$i++] . '1', 'Номер телефона');
+        }
+        $sheet->setCellValue($cells[$i++] . '1', 'Начальная точка');
+        $sheet->setCellValue($cells[$i++] . '1', 'Конечная точка');
+        $sheet->setCellValue($cells[$i++] . '1', 'Расстояние');
+        $sheet->setCellValue($cells[$i++] . '1', 'Время заказа');
+        if ($reportType != 'rides') {
+            $sheet->setCellValue($cells[$i++] . '1', 'Имя водителя');
+        }
+        if ($reportType == 'full') {
+            $sheet->setCellValue($cells[$i++] . '1', 'Имя клиента');
+        }
+        $sheet->setCellValue($cells[$i++] . '1', 'Тариф');
+        $sheet->setCellValue($cells[$i++] . '1', 'Стоимость');
+
+        $rowIndex = 2;
+        foreach ($data as $row) {
+            $i = 0;
+            if ($reportType != 'history') {
+                $sheet->setCellValue($cells[$i++] . $rowIndex, $row['phone']);
+            }
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['from_loc']);
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['dest_loc']);
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['distance']);
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['orderedAt']);
+            if ($reportType != 'rides') {
+                $sheet->setCellValue($cells[$i++] . $rowIndex, $row['driver_name']);
+            }
+            if ($reportType == 'full') {
+                $sheet->setCellValue($cells[$i++] . $rowIndex, $row['user_name']);
+            }
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['tariff_name']);
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['price']);
+            $rowIndex++;
+        }
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="report.xlsx"');
+
+        $writer = new Xlsx($spreadsheet);
+        $writer->save('php://output');
+        exit;
+    }
 }
 ?>
