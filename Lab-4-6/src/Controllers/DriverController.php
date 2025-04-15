@@ -40,15 +40,24 @@ class DriverController
     {
         [$filter, $err] = DriverValidator::validateFilter($_GET);
         $list = $this->driver_model->getListFiltered($filter);
-
+        $msg = '';
         if ($err !== '') {
             $_SESSION['error'] = $err;
+        }
+
+        if (isset($_GET['type']) && $_GET['type'] == 'pdf') {
+            $this->generatePdf($list);
+            $msg = "Отчет успешно составлен\n";
+        } elseif (isset($_GET['type']) && $_GET['type'] == 'excel') {
+            $this->generateExcel($list);
+            $msg = "Отчет успешно составлен\n";
         }
 
         echo $this->twig->render(
             'drivers.twig',
             [
                 'drivers' => $list,
+                'message' => $msg,
                 'name' => $filter["name"] ?? "",
                 'phone' => $filter["phone"] ?? "",
                 'email' => $filter["email"] ?? "",
@@ -283,96 +292,77 @@ class DriverController
         exit;
     }
 
-    private function generatePdf(array $data, string $reportType)
+    private function generatePdf(array $data)
     {
+
+        function toWin1251(?string $text): ?string {
+            if ($text === null){
+                return null;
+            }
+            return iconv('UTF-8', 'windows-1251//IGNORE', $text);
+        }
+
+        define('FPDF_FONTPATH','../../public/fonts');
         $pdf = new FawnoFPDF();
-        $pdf->AddPage();
-        $pdf->SetFont('Arial', 'B', 12);
-        if ($reportType != 'history') {
-            $pdf->Cell(20, 10, 'Телефон клиента', 1);
-        }
-        $pdf->Cell(20, 10, 'Начальная точка', 1);
-        $pdf->Cell(20, 10, 'Конечная точка', 1);
-        $pdf->Cell(20, 10, 'Расстояние', 1);
-        $pdf->Cell(20, 10, 'Время заказа', 1);
+        $pdf->AddPage('L');
+        $fontname = 'Iosevka';
+        
 
-        if ($reportType != 'rides') {
-            $pdf->Cell(20, 10, 'Имя водителя', 1);
-        }
-        if ($reportType == 'full') {
-            $pdf->Cell(20, 10, 'Имя клиента', 1);
-        }
+        $pdf->AddFont($fontname, '', 'IosevkaNerdFont_Regular.php', '/var/www/html/public/fonts/unifont');
+        $pdf->AddFont($fontname, 'B', 'IosevkaNerdFont-Bold.php', '/var/www/html/public/fonts/unifont');
 
-        $pdf->Cell(20, 10, 'Тарифф', 1);
-        $pdf->Cell(20, 10, 'Стоимость', 1);
+        // $pdf->SetFont('DejaVuSerif.ttf', 'B', 12);
+        $pdf->SetFont($fontname, 'B', 12);
+        $pdf->Cell(60, 10, toWin1251('Имя'), 1);
+        $pdf->Cell(45, 10, toWin1251('Номер телефона'), 1);
+        $pdf->Cell(60, 10, toWin1251('Почта'), 1);
+        $pdf->Cell(15, 10, toWin1251('Стаж'), 1);
+        $pdf->Cell(30, 10, toWin1251("Лицензионный номер"), 1);
+        $pdf->Cell(60, 10, toWin1251('Марка машины'), 1);
+        $pdf->Cell(60, 10, toWin1251('Название тариффа'), 1);
 
         $pdf->Ln();
 
-        $pdf->SetFont('Arial', '', 12);
+        $pdf->SetFont($fontname, 'B', 12);
+
         foreach ($data as $row) {
-            if ($reportType != 'history') {
-                $pdf->Cell(20, 10, $row['phone'], 1);
-            }
-            $pdf->Cell(20, 10, $row['from_loc'], 1);
-            $pdf->Cell(20, 10, $row['dest_loc'], 1);
-            $pdf->Cell(20, 10, $row['distance'], 1);
-            $pdf->Cell(20, 10, $row['orderedAt'], 1);
-
-            if ($reportType != 'rides') {
-                $pdf->Cell(20, 10, $row['driver_name'], 1);
-            }
-            if ($reportType == 'full') {
-                $pdf->Cell(20, 10, $row['user_name'], 1);
-            }
-
-            $pdf->Cell(20, 10, $row['tariff_name'], 1);
-            $pdf->Cell(20, 10, $row['price'], 1);
+            $pdf->Cell(60, 10, toWin1251($row['name']), 1);
+            $pdf->Cell(45, 10, toWin1251($row['phone']), 1);
+            $pdf->Cell(60, 10, toWin1251($row['email']), 1);
+            $pdf->Cell(15, 10, toWin1251($row['intership']), 1);
+            $pdf->Cell(30, 10, toWin1251($row['car_license']), 1);
+            $pdf->Cell(60, 10, toWin1251($row['car_brand']), 1);
+            $pdf->Cell(60, 10, toWin1251($row['tariff_name']), 1);
             $pdf->Ln();
         }
         $pdf->Output('D', 'report.pdf');
     }
 
-    private function generateExcel(array $data, string $reportType)
+    private function generateExcel(array $data)
     {
         $spreadsheet = new Spreadsheet();
         $cells = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
         $sheet = $spreadsheet->getActiveSheet();
 
         $i = 0;
-        if ($reportType != 'history') {
-            $sheet->setCellValue($cells[$i++] . '1', 'Номер телефона');
-        }
-        $sheet->setCellValue($cells[$i++] . '1', 'Начальная точка');
-        $sheet->setCellValue($cells[$i++] . '1', 'Конечная точка');
-        $sheet->setCellValue($cells[$i++] . '1', 'Расстояние');
-        $sheet->setCellValue($cells[$i++] . '1', 'Время заказа');
-        if ($reportType != 'rides') {
-            $sheet->setCellValue($cells[$i++] . '1', 'Имя водителя');
-        }
-        if ($reportType == 'full') {
-            $sheet->setCellValue($cells[$i++] . '1', 'Имя клиента');
-        }
-        $sheet->setCellValue($cells[$i++] . '1', 'Тариф');
-        $sheet->setCellValue($cells[$i++] . '1', 'Стоимость');
+        $sheet->setCellValue($cells[$i++] . '1', 'Имя',);
+        $sheet->setCellValue($cells[$i++] . '1', 'Номер телефона');
+        $sheet->setCellValue($cells[$i++] . '1', 'Почта',);
+        $sheet->setCellValue($cells[$i++] . '1', 'Стаж',);
+        $sheet->setCellValue($cells[$i++] . '1', 'Лицензионный номер');
+        $sheet->setCellValue($cells[$i++] . '1', 'Марка машины');
+        $sheet->setCellValue($cells[$i++] . '1', 'Название тариффа');
 
         $rowIndex = 2;
         foreach ($data as $row) {
             $i = 0;
-            if ($reportType != 'history') {
-                $sheet->setCellValue($cells[$i++] . $rowIndex, $row['phone']);
-            }
-            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['from_loc']);
-            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['dest_loc']);
-            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['distance']);
-            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['orderedAt']);
-            if ($reportType != 'rides') {
-                $sheet->setCellValue($cells[$i++] . $rowIndex, $row['driver_name']);
-            }
-            if ($reportType == 'full') {
-                $sheet->setCellValue($cells[$i++] . $rowIndex, $row['user_name']);
-            }
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['name']);
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['phone']);
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['email']);
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['intership']);
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['car_license']);
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['car_brand']);
             $sheet->setCellValue($cells[$i++] . $rowIndex, $row['tariff_name']);
-            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['price']);
             $rowIndex++;
         }
 

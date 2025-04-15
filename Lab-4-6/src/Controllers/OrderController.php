@@ -115,11 +115,11 @@ class OrderController
 
         $tariffs_list = new Tariff()->getEntries();
 
-        if ($_GET['type'] == 'pdf') {
-            $this->generatePdf($list, 'rides');
+        if (isset($_GET['type']) && $_GET['type'] === "pdf") {
+            $this->generatePdf($list, 'full');
             $msg = "Отчет успешно составлен\n";
-        } elseif ($_GET['type'] == 'excel') {
-            $this->generatePdf($list, 'rides');
+        } elseif (isset($_GET['type']) && $_GET['type'] == 'excel') {
+            $this->generateExcel($list, 'full');
             $msg = "Отчет успешно составлен\n";
         }
 
@@ -128,6 +128,8 @@ class OrderController
             [
                 'tariffs_entries' => $tariffs_list,
                 'error' => $err,
+                'message' => $msg,
+
                 'orders' => $list,
                 'orderedAt_from' => $filter['orderedAt']['from'] ?? '',
                 'orderedAt_to' => $filter['orderedAt']['to'] ?? '',
@@ -145,14 +147,15 @@ class OrderController
         $driver = new Driver()->getDriver($_SESSION['user_id']);
         [$filter, $err] = OrderValidator::validateFilter($_GET);
         $list = $this->model->getListFiltered($filter, null, $driver_id = $driver['id']);
+        $msg = '';
 
         $tariffs_list = new Tariff()->getEntries();
 
-        if ($_GET['type'] == 'pdf') {
-            $this->generatePdf($list, 'history');
+        if (isset($_GET['type']) && $_GET['type'] === "pdf") {
+            $this->generatePdf($list, 'full');
             $msg = "Отчет успешно составлен\n";
-        } elseif ($_GET['type'] == 'excel') {
-            $this->generatePdf($list, 'history');
+        } elseif (isset($_GET['type']) && $_GET['type'] == 'excel') {
+            $this->generateExcel($list, 'full');
             $msg = "Отчет успешно составлен\n";
         }
 
@@ -161,6 +164,7 @@ class OrderController
             [
                 'tariffs_entries' => $tariffs_list,
                 'error' => $err,
+                'message' => $msg,
                 'orders' => $list,
                 'orderedAt_from' => $filter['orderedAt']['from'] ?? '',
                 'orderedAt_to' => $filter['orderedAt']['to'] ?? '',
@@ -174,12 +178,24 @@ class OrderController
 
     private function generatePdf(array $data, string $reportType)
     {
-        $pdf = new Pdf('L');
-        $pdf->AddPage();
-        $pdf->SetFont('Arial', 'B', 12);
-        if ($reportType != 'history') {
-            $pdf->Cell(20, 10, 'Телефон клиента', 1);
+        function toWin1251(?string $text): ?string {
+            if ($text === null){
+                return null;
+            }
+            return iconv('UTF-8', 'windows-1251//IGNORE', $text);
         }
+
+        define('FPDF_FONTPATH','../../public/fonts');
+        $pdf = new FawnoFPDF();
+        $pdf->AddPage('L');
+        $fontname = 'Iosevka';
+        
+
+        $pdf->AddFont($fontname, '', 'IosevkaNerdFont_Regular.php', '/var/www/html/public/fonts/unifont');
+        $pdf->AddFont($fontname, 'B', 'IosevkaNerdFont-Bold.php', '/var/www/html/public/fonts/unifont');
+
+        // $pdf->SetFont('DejaVuSerif.ttf', 'B', 12);
+        $pdf->SetFont($fontname, 'B', 12);
         $pdf->Cell(20, 10, 'Начальная точка', 1);
         $pdf->Cell(20, 10, 'Конечная точка', 1);
         $pdf->Cell(20, 10, 'Расстояние', 1);
@@ -196,8 +212,8 @@ class OrderController
         $pdf->Cell(20, 10, 'Стоимость', 1);
 
         $pdf->Ln();
-
-        $pdf->SetFont('Arial', '', 12);
+        
+        $pdf->SetFont($fontname, '', 12);
         foreach ($data as $row) {
             if ($reportType != 'history') {
                 $pdf->Cell(20, 10, $row['phone'], 1);
@@ -218,7 +234,7 @@ class OrderController
             $pdf->Cell(20, 10, $row['price'], 1);
             $pdf->Ln();
         }
-        $pdf->Output('D', 'report.pdf');
+        $pdf->Output('I', 'report.pdf');
         exit;
     }
 

@@ -1,10 +1,12 @@
 <?php
 
 namespace src\Controllers;
+use Fawno\FPDF\FawnoFPDF;
 use PDOException;
 use src\Files\BaseUploader;
 use src\Models\User;
-use Fawno\FPDF\FawnoFPDF;
+use tFPDF;
+// define('FPDF_FONTPATH', '/var/www/html/public/fonts/');
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use src\Validators\UserValidator;
@@ -153,6 +155,7 @@ class UserController{
     public function index(){
         [$filter, $err] = UserValidator::validateFilter($_GET);
         $list = $this->user_model->getListFiltered($filter);
+        $msg = '';
 
         if ($err !== '') {
             $_SESSION['error'] = $err;
@@ -169,6 +172,7 @@ class UserController{
         echo $this->twig->render(
             'users.twig',
             [
+                'message' => $msg,
                 'users' => $list,
                 'name' => $filter["name"] ?? "",
                 'phone' => $filter["phone"] ?? "",
@@ -179,32 +183,37 @@ class UserController{
 
     private function generatePdf(array $data)
     {
+
+        function toWin1251(?string $text): ?string {
+            if ($text === null){
+                return null;
+            }
+            return iconv('UTF-8', 'windows-1251//IGNORE', $text);
+        }
+
+        define('FPDF_FONTPATH','../../public/fonts');
         $pdf = new FawnoFPDF();
-        $pdf->AddPage();
-        $pdf->SetFont('Arial', 'B', 12);
-        $pdf->Cell(20, 10, 'Телефон клиента', 1);
-        $pdf->Cell(20, 10, 'Начальная точка', 1);
-        $pdf->Cell(20, 10, 'Конечная точка', 1);
-        $pdf->Cell(20, 10, 'Расстояние', 1);
-        $pdf->Cell(20, 10, 'Время заказа', 1);
-        $pdf->Cell(20, 10, 'Имя водителя', 1);
-        $pdf->Cell(20, 10, 'Имя клиента', 1);
-        $pdf->Cell(20, 10, 'Тарифф', 1);
-        $pdf->Cell(20, 10, 'Стоимость', 1);
+        $pdf->AddPage('L');
+        $fontname = 'Iosevka';
+        
+
+        $pdf->AddFont($fontname, '', 'IosevkaNerdFont_Regular.php', '/var/www/html/public/fonts/unifont');
+        $pdf->AddFont($fontname, 'B', 'IosevkaNerdFont-Bold.php', '/var/www/html/public/fonts/unifont');
+
+        // $pdf->SetFont('DejaVuSerif.ttf', 'B', 12);
+        $pdf->SetFont($fontname, 'B', 12);
+        $pdf->Cell(60, 10, toWin1251('Имя'), 1);
+        $pdf->Cell(45, 10, toWin1251('Номер телефона'), 1);
+        $pdf->Cell(65, 10, toWin1251('Почта'), 1);
+        $pdf->Cell(50, 10, toWin1251('Роль'), 1);
 
         $pdf->Ln();
-
-        $pdf->SetFont('Arial', '', 12);
+        $pdf->SetFont($fontname, '', 12);
         foreach ($data as $row) {
-            $pdf->Cell(20, 10, $row['phone'], 1);
-            $pdf->Cell(20, 10, $row['from_loc'], 1);
-            $pdf->Cell(20, 10, $row['dest_loc'], 1);
-            $pdf->Cell(20, 10, $row['distance'], 1);
-            $pdf->Cell(20, 10, $row['orderedAt'], 1);
-            $pdf->Cell(20, 10, $row['driver_name'], 1);
-            $pdf->Cell(20, 10, $row['user_name'], 1);
-            $pdf->Cell(20, 10, $row['tariff_name'], 1);
-            $pdf->Cell(20, 10, $row['price'], 1);
+            $pdf->Cell(60, 10, toWin1251($row['name']), 1);
+            $pdf->Cell(45, 10, toWin1251($row['phone']), 1);
+            $pdf->Cell(65, 10, toWin1251($row['email']), 1);
+            $pdf->Cell(50, 10, toWin1251($row['role']), 1);
             $pdf->Ln();
         }
         $pdf->Output('D', 'report.pdf');
@@ -217,28 +226,18 @@ class UserController{
         $sheet = $spreadsheet->getActiveSheet();
 
         $i = 0;
+        $sheet->setCellValue($cells[$i++] . '1', 'Имя');
         $sheet->setCellValue($cells[$i++] . '1', 'Номер телефона');
-        $sheet->setCellValue($cells[$i++] . '1', 'Начальная точка');
-        $sheet->setCellValue($cells[$i++] . '1', 'Конечная точка');
-        $sheet->setCellValue($cells[$i++] . '1', 'Расстояние');
-        $sheet->setCellValue($cells[$i++] . '1', 'Время заказа');
-        $sheet->setCellValue($cells[$i++] . '1', 'Имя водителя');
-        $sheet->setCellValue($cells[$i++] . '1', 'Имя клиента');
-        $sheet->setCellValue($cells[$i++] . '1', 'Тариф');
-        $sheet->setCellValue($cells[$i++] . '1', 'Стоимость');
+        $sheet->setCellValue($cells[$i++] . '1', 'Почта');
+        $sheet->setCellValue($cells[$i++] . '1', 'Роль');
 
         $rowIndex = 2;
         foreach ($data as $row) {
             $i = 0;
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['name']);
             $sheet->setCellValue($cells[$i++] . $rowIndex, $row['phone']);
-            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['from_loc']);
-            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['dest_loc']);
-            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['distance']);
-            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['orderedAt']);
-            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['driver_name']);
-            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['user_name']);
-            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['tariff_name']);
-            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['price']);
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['email']);
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['role']);
             $rowIndex++;
         }
 

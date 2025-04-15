@@ -26,15 +26,25 @@ class TariffController
     {
         [$filter, $err] = TariffValidator::validateFilter($_GET);
         $list = $this->model->getListFiltered($filter);
+        $msg = '';
 
         if ($err !== '') {
             $_SESSION['error'] = $err;
+        }
+
+        if (isset($_GET['type']) && $_GET['type'] == 'pdf') {
+            $this->generatePdf($list);
+            $msg = "Отчет успешно составлен\n";
+        } elseif (isset($_GET['type']) && $_GET['type'] == 'excel') {
+            $this->generateExcel($list);
+            $msg = "Отчет успешно составлен\n";
         }
 
         echo $this->twig->render(
             'tariffs.twig',
             [
                 'tariffs' => $list,
+                'message' => $msg,
                 'name' => $filter["name"] ?? "",
                 'base_price_from' => $filter["base_price"]["from"] ?? "",
                 'base_price_to' => $filter["base_price"]["to"] ?? "",
@@ -93,9 +103,7 @@ class TariffController
         $name = trim($_POST['name'] ?? "");
         $base_price = trim($_POST['base_price'] ?? "");
         $base_dist = trim($_POST['base_dist'] ?? "");
-        $base_time = trim($_POST['base_time'] ?? "");
         $dist_cost = trim($_POST['dist_cost'] ?? "");
-        $time_cost = trim($_POST['time_cost'] ?? "");
 
         $success = $this->model->addTariff(
             $name,
@@ -114,96 +122,48 @@ class TariffController
     }
 
 
-    private function generatePdf(array $data, string $reportType)
+    private function generatePdf(array $data)
     {
         $pdf = new FawnoFPDF();
         $pdf->AddPage();
         $pdf->SetFont('Arial', 'B', 12);
-        if ($reportType != 'history') {
-            $pdf->Cell(20, 10, 'Телефон клиента', 1);
-        }
-        $pdf->Cell(20, 10, 'Начальная точка', 1);
-        $pdf->Cell(20, 10, 'Конечная точка', 1);
-        $pdf->Cell(20, 10, 'Расстояние', 1);
-        $pdf->Cell(20, 10, 'Время заказа', 1);
-
-        if ($reportType != 'rides') {
-            $pdf->Cell(20, 10, 'Имя водителя', 1);
-        }
-        if ($reportType == 'full') {
-            $pdf->Cell(20, 10, 'Имя клиента', 1);
-        }
-
-        $pdf->Cell(20, 10, 'Тарифф', 1);
-        $pdf->Cell(20, 10, 'Стоимость', 1);
+        $pdf->Cell(20, 10, 'Название тарифа', 1);
+        $pdf->Cell(20, 10, 'Начальная стоимость', 1);
+        $pdf->Cell(20, 10, 'Расстояние в тарифе', 1);
+        $pdf->Cell(20, 10, 'Стоимость за км', 1);
 
         $pdf->Ln();
 
         $pdf->SetFont('Arial', '', 12);
         foreach ($data as $row) {
-            if ($reportType != 'history') {
-                $pdf->Cell(20, 10, $row['phone'], 1);
-            }
-            $pdf->Cell(20, 10, $row['from_loc'], 1);
-            $pdf->Cell(20, 10, $row['dest_loc'], 1);
-            $pdf->Cell(20, 10, $row['distance'], 1);
-            $pdf->Cell(20, 10, $row['orderedAt'], 1);
-
-            if ($reportType != 'rides') {
-                $pdf->Cell(20, 10, $row['driver_name'], 1);
-            }
-            if ($reportType == 'full') {
-                $pdf->Cell(20, 10, $row['user_name'], 1);
-            }
-
-            $pdf->Cell(20, 10, $row['tariff_name'], 1);
-            $pdf->Cell(20, 10, $row['price'], 1);
+            $pdf->Cell(20, 10, $row['name'], 1);
+            $pdf->Cell(20, 10, $row['base_price'], 1);
+            $pdf->Cell(20, 10, $row['base_dist'], 1);
+            $pdf->Cell(20, 10, $row['dist_cost'], 1);
             $pdf->Ln();
         }
         $pdf->Output('D', 'report.pdf');
     }
 
-    private function generateExcel(array $data, string $reportType)
+    private function generateExcel(array $data)
     {
         $spreadsheet = new Spreadsheet();
         $cells = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
         $sheet = $spreadsheet->getActiveSheet();
 
         $i = 0;
-        if ($reportType != 'history') {
-            $sheet->setCellValue($cells[$i++] . '1', 'Номер телефона');
-        }
-        $sheet->setCellValue($cells[$i++] . '1', 'Начальная точка');
-        $sheet->setCellValue($cells[$i++] . '1', 'Конечная точка');
-        $sheet->setCellValue($cells[$i++] . '1', 'Расстояние');
-        $sheet->setCellValue($cells[$i++] . '1', 'Время заказа');
-        if ($reportType != 'rides') {
-            $sheet->setCellValue($cells[$i++] . '1', 'Имя водителя');
-        }
-        if ($reportType == 'full') {
-            $sheet->setCellValue($cells[$i++] . '1', 'Имя клиента');
-        }
-        $sheet->setCellValue($cells[$i++] . '1', 'Тариф');
-        $sheet->setCellValue($cells[$i++] . '1', 'Стоимость');
+        $sheet->setCellValue($cells[$i++] . '1', 'Название тарифа');
+        $sheet->setCellValue($cells[$i++] . '1', 'Начальная стоимость');
+        $sheet->setCellValue($cells[$i++] . '1', 'Расстояние в тарифе');
+        $sheet->setCellValue($cells[$i++] . '1', 'Стоимость за км');
 
         $rowIndex = 2;
         foreach ($data as $row) {
             $i = 0;
-            if ($reportType != 'history') {
-                $sheet->setCellValue($cells[$i++] . $rowIndex, $row['phone']);
-            }
-            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['from_loc']);
-            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['dest_loc']);
-            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['distance']);
-            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['orderedAt']);
-            if ($reportType != 'rides') {
-                $sheet->setCellValue($cells[$i++] . $rowIndex, $row['driver_name']);
-            }
-            if ($reportType == 'full') {
-                $sheet->setCellValue($cells[$i++] . $rowIndex, $row['user_name']);
-            }
-            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['tariff_name']);
-            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['price']);
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['name']);
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['base_price']);
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['base_dist']);
+            $sheet->setCellValue($cells[$i++] . $rowIndex, $row['dist_cost']);
             $rowIndex++;
         }
 

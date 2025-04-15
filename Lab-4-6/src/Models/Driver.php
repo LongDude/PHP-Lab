@@ -8,6 +8,7 @@ use src\Models\RequestBuilder;
 
 class Driver
 {
+
     private PDO $pdo;
  
     const fields = array(
@@ -40,7 +41,7 @@ class Driver
 
     public function getListFiltered(array $filter): array
     {
-        $builder = new RequestBuilder("SELECT u.name as name, u.phone, u.email, d.intership, d.car_license, d.car_brand, t.name as tariff_name FROM drivers d INNER JOIN tariffs t on t.id = d.tariff_id INNER JOIN users u on u.id = d.user_id where 1=1 ", $filter);
+        $builder = new RequestBuilder("SELECT u.name as name, u.phone as phone, u.email as email, d.intership as intership, d.car_license as car_license, d.car_brand as car_brand, t.name as tariff_name FROM drivers d INNER JOIN tariffs t on t.id = d.tariff_id INNER JOIN users u on u.id = d.user_id where 1=1 ", $filter);
         [$stmt_raw, $prms] = $builder
             ->stringFuzzy("name", "u.name")
             ->stringFuzzy("phone", "u.phone")

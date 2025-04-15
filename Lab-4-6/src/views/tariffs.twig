@@ -11,7 +11,7 @@
         <form method="GET" action="">
             <div class="filter-single-group">
                 <label for="name">Название тарифа</label>
-                <input type="text" name="name" id="name" placeholder="Базовый" value="{{ name }}">
+                <input type="text" name="name" id="name" placeholder="Эконом" value="{{ name }}">
                 <!-- <label for="name"></label> -->
             </div>
             <div class="filter-range-group">
@@ -25,6 +25,8 @@
                 <!-- <label for="name"></label> -->
             </div>
             <input type="submit" value="Получить" id="submit">
+            {{ block ("report_btns", "_messaging.twig")}}
+
         </form>
     </aside>
     <main class="table-panel">
