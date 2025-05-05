@@ -1,112 +1,61 @@
 <?php
+// src/Entity/User.php
 
-namespace src\Models;
-use PDOException;
-use src\Core\Database;
-use PDO;
-use src\Models\RequestBuilder;
+namespace App\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
+ * @ORM\Table(name="users")
+ */
 class User
 {
-    private PDO $pdo;
-    const fields = array(
-        'name',
-        'phone',
-        'email',
-        'password',
-        'role',
-    );
+    
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type:"integer")]
+    private $id;
 
-    public function __construct()
+    
+    #[ORM\Column(type:"string", length:100)]
+    private $name;
+
+    
+    #[ORM\Column(type: "string", length: 20, nullable: true, unique: true)]
+    private $phone;
+
+    /**
+     * @ORM\Column(type="string", length=100, unique=true)
+     */
+    private $email;
+
+    /**
+     * @ORM\Column(type="string", length=32)
+     */
+    private $password;
+
+    /**
+     * @ORM\Column(type="string", length=10, options={"default": "client"})
+     */
+    private $role = 'client';
+
+    // Getters and Setters
+    public function getId(): ?int
     {
-        $this->pdo = Database::connect();
+        return $this->id;
     }
 
-    public function indetificate(string $email): mixed
+    public function getName(): ?string
     {
-        $stmt = $this->pdo->prepare("SELECT * from users WHERE email=:email");
-        $stmt->execute([":email" => $email]);
-        return $stmt->fetch();
+        return $this->name;
     }
 
-
-    public function addUser(
-        string $name,
-        string $phone,
-        string $email,
-        string $password,
-        string $role = 'client'
-    ) {
-        $stmt = $this->pdo->prepare("INSERT INTO users (name, phone, email, password, role) VALUES (:name, :phone, :email, :password, :role)");
-        $res = $stmt->execute(array(
-            ':name' => $name,
-            ':phone' => $phone,
-            ':email' => $email,
-            ':password' => md5($password),
-            ':role' => $role,
-        ));
-        return $res;
-    }
-
-    public function getUserId(
-        string $email
-    ){
-        $stmt = $this->pdo->prepare("SELECT id from users where email=:email");
-        $stmt -> execute([':email' => $email]);
-        return $stmt->fetch()['id'];
-    }
-
-    public function updateUser(
-        string $user_id,
-        string $name,
-        string $phone,
-        string $email,
-        string $password,
-        string $role = 'client'
-    ): bool {
-        $stmt = $this->pdo->prepare("UPDATE users SET name=:name, phone=:phone, email=:email, password=:password, role=:role WHERE id=:user_id");
-        $res = $stmt->execute(array(
-            ':user_id' => $user_id,
-            ':name' => $name,
-            ':phone' => $phone,
-            ':email' => $email,
-            ':password' => md5($password),
-            ':role' => $role,
-        ));
-        return $res;
-    }
-
-    public function importCsv(string $path): bool
+    public function setName(string $name): self
     {
-        $file = fopen($path, "r");
-        if ($file) {
-            while (($row = fgetcsv($file, 1000, ",")) != false) {
-                $stmt = $this->pdo->prepare("INSERT INTO users (name, phone, email, password, role) VALUES (:name, :phone, :email, :password, :role)");
-                $res = $stmt->execute(array(
-                    ':name' => $row[0],
-                    ':phone' => $row[1],
-                    ':email' => $row[2],
-                    ':password' => md5($row[3]),
-                    ':role' => $row[4],
-                ));
-            }
-            fclose($file);
-            return true;
-        }
-        return false;
+        $this->name = $name;
+        return $this;
     }
 
-    public function getListFiltered(array $filter): array
-    {
-        $builder = new RequestBuilder("SELECT name, phone, email, role FROM users where 1=1 ", $filter);
-        [$stmt_raw, $prms] = $builder
-            ->stringFuzzy("name")
-            ->stringFuzzy("phone")
-            ->stringFuzzy("email")
-            ->build();
-
-        $stmt = $this->pdo->prepare($stmt_raw);
-        $stmt->execute($prms);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+    // ... other getters and setters
 }
