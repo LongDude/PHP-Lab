@@ -1,22 +1,23 @@
 <?php
 
 namespace src\Controllers;
+use Doctrine\ORM\EntityManager;
 use PDOException;
 use src\Files\BaseUploader;
 
-use src\Models\User;
+use src\Entities\User;
 use src\Validators\BaseValidators;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
 class SessionController{
 
-    private User $user_model;
+    private $user_rep;
     private Environment $twig;
 
-    public function __construct()
+    public function __construct(EntityManager $em)
     {
-        $this->user_model = new User();
+        $this->user_rep = $em->getRepository(User::class);
         $loader = new FilesystemLoader(__DIR__ . '/../views');
         $this->twig = new Environment($loader);
     }
@@ -67,18 +68,18 @@ class SessionController{
             header("Location: /login");
             exit;
         }
-        $user = $this->user_model->indetificate($_SESSION['email']);
-        if (!$user || md5($password) != $user['password']){
+        $user = $this->user_rep->findOneBy(array('email' => $_SESSION['email']));
+        if (!$user || md5($password) != $user->getPassword()){
             $_SESSION['message'] = "Неправильное имя пользователя или пароль";
             header("Location: /login");
             exit;
         }
 
         // Авторизация прошла удачно
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['username'] = $user['name'];
-        $_SESSION['phone'] = $user['phone'];
-        $_SESSION['role'] = $user['role'];
+        $_SESSION['user_id'] = $user->getId();
+        $_SESSION['username'] = $user->getName();
+        $_SESSION['phone'] = $user->getPhone();
+        $_SESSION['role'] = $user->getRole();
         header("Location: /");
     }
     public function logout(){

@@ -7,13 +7,38 @@ use src\Core\Router;
 use src\Controllers\DriverController;
 use src\Controllers\OrderController;
 use src\Controllers\TariffController;
-$router = new Router();
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\ORMSetup;
+use Doctrine\DBAL\DriverManager;
 
-$session = new SessionController();
-$user = new UserController();
-$drivers = new DriverController();
-$orders = new OrderController();
-$tariffs = new TariffController();
+$router = new Router();
+$paths = [__DIR__ . '../src/Entities'];
+$dbParams = [
+    'driver' => 'mysql',
+    'user' => $_ENV['MYSQL_USER'],
+    'password' => $_ENV['MYSQL_PASSWORD'],
+    'host' => 'db',
+    'dbname' => $_ENV["MYSQL_DATABASE"],
+    'charset' => 'utf8mb4',
+    'driverOptions' => [
+        PDO::ATTR_EMULATE_PREPARES => false,
+        PDO::ATTR_STRINGIFY_FETCHES => false,
+    ]
+];
+
+$config = ORMSetup::createAttributeMetadataConfiguration(
+    paths: $paths,
+    isDevMode: true,
+);
+
+$connections = DriverManager::getConnection($dbParams, $config);
+$em = new EntityManager($connections, $config);
+
+$session = new SessionController($em);
+$user = new UserController($em);
+$drivers = new DriverController($em);
+$orders = new OrderController($em);
+$tariffs = new TariffController($em);
 
 // session
 $router->get('/', [$session, 'index'], ['client', 'admin', 'driver'], '/login');

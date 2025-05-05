@@ -3,9 +3,10 @@
         "twig/twig": "^3.20",
         "fawno/fpdf": "^1.86",
         "phpoffice/phpspreadsheet": "^4.1",
-        "mgrn/tfpdf": "^1.0",
-        "rev42/tfpdf": "^1.25",
-        "doctrine/orm": "^3.3"
+        "doctrine/orm": "^3.3",
+        "doctrine/dbal": "^4",
+        "symfony/cache": "^7.2",
+        "doctrine/collections": "^2.3"
     },
     "autoload": {
         "psr-4": {

@@ -1,11 +1,13 @@
 <?php
 namespace src\Controllers;
 
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityRepository;
 use PDOException;
 use src\Files\BaseUploader;
-use src\Models\Driver;
-use src\Models\User;
-use src\Models\Tariff;
+use src\Entities\Driver;
+use src\Entities\User;
+use src\Entities\Tariff;
 use src\Validators\DriverValidator;
 use Fawno\FPDF\FawnoFPDF;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -16,14 +18,16 @@ use Twig\Loader\FilesystemLoader;
 
 class DriverController
 {
-    private Driver $driver_model;
-    private User $user_model;
+    private EntityRepository $driver_rep;
+    private EntityRepository $user_rep;
+    private EntityRepository $tariff_rep;
     private Environment $twig;
 
-    public function __construct()
+    public function __construct(EntityManager $em)
     {
-        $this->driver_model = new Driver();
-        $this->user_model = new User();
+        $this->driver_rep = $em->getRepository(Driver::class);
+        $this->user_rep = $em->getRepository(User::class);
+        $this->tariff_rep = $em->getRepository(Tariff::class);
         $loader = new FilesystemLoader(__DIR__ . '/../views');
         $this->twig = new Environment($loader);
     }
@@ -32,14 +36,27 @@ class DriverController
     public function getEntries()
     {
         header('Content-type: application/json');
-        $list = $this->driver_model->getEntries();
+        $list = $this->driver_rep->createQueryBuilder('d')
+        ->select([
+            'u.name as name',
+            'u.phone',
+            'u.email',
+            'd.intership',
+            'd.carLicense',
+            'd.carBrand',
+            't.name as tariffName'
+        ])
+        ->join("d.user", 'u')
+        ->leftJoin('d.tariff', 't')
+        ->getQuery()
+        ->getResult();
         echo json_encode($list);
     }
 
     public function index()
     {
         [$filter, $err] = DriverValidator::validateFilter($_GET);
-        $list = $this->driver_model->getListFiltered($filter);
+        $list = $this->driver_rep->getListFiltered($filter);
         $msg = '';
         if ($err !== '') {
             $_SESSION['error'] = $err;
