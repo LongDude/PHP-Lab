@@ -27,7 +27,7 @@ class Order
     #[ORM\Column(name: 'price', type: 'float')]
     private float $price;
 
-    #[ORM\Column(name: 'ordered_at', type: 'datetime_immutable')]
+    #[ORM\Column(name: 'orderedAt', type: 'datetime_immutable')]
     private ?DateTimeImmutable $orderedAt;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'orders')]

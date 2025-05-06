@@ -121,6 +121,7 @@ class OrderController
         [$filter, $err] = OrderValidator::validateFilter($_GET);
         $list = $this->orderRepository->getFilteredList($filter, $_SESSION['user_id']);
         $tariffs_list = $this->tariffRepository->findAll();
+        $msg = '';
 
         if (isset($_GET['type']) && $_GET['type'] === "pdf") {
             $this->generatePdf($list, 'full');
@@ -130,6 +131,9 @@ class OrderController
             $msg = "Отчет успешно составлен\n";
         }
 
+        foreach($list as $k=>$r){
+            $list[$k]['orderedAt'] = $r['orderedAt']->format('Y-m-d H:i:s');
+        }
         echo $this->twig->render(
             'orders.twig',
             [

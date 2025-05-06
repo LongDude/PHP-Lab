@@ -19,7 +19,7 @@ class QueryFilters {
         if (empty($this->filter[$filter_field])) return $this;
 
         $this->qb
-        ->andWhere($db_mask ?? $filter_field .' LIKE :'.$filter_field)
+        ->andWhere(($db_mask ?? $filter_field) .' LIKE :'.$filter_field)
         ->setParameter($filter_field, '%'.$this->filter[$filter_field].'%');
         return $this;
     }
@@ -27,7 +27,7 @@ class QueryFilters {
     public function exact(string $filter_field, ?string $db_mask = null): self {
         if (empty($this->filter[$filter_field])) return $this;
         $this->qb
-        ->andWhere($db_mask ?? $filter_field .' = :'.$filter_field)
+        ->andWhere(($db_mask ?? $filter_field) .' = :'.$filter_field)
         ->setParameter($filter_field, $this->filter[$filter_field]);
         return $this;
     }
@@ -40,13 +40,13 @@ class QueryFilters {
 
         if ($lowerbound){
             $this->qb
-            ->andWhere($db_mask ?? $filter_field .' >= :'.$filter_field.'_from')
+            ->andWhere(($db_mask ?? $filter_field) .' >= :'.$filter_field.'_from')
             ->setParameter($filter_field.'_from', $lowerbound);
         }
 
         if ($upperbound){
             $this->qb
-            ->andWhere($db_mask ?? $filter_field .' <= :'.$filter_field.'_to')
+            ->andWhere(($db_mask ?? $filter_field) .' <= :'.$filter_field.'_to')
             ->setParameter($filter_field.'_to', $upperbound);
         }
         return $this;

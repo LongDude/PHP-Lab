@@ -28,7 +28,8 @@ class OrderRepository extends EntityRepository{
             ])
             ->join('o.tariff', 't')
             ->join('o.user', 'u1')
-            ->join('o.driver', 'u2');
+            ->join('o.driver', 'd')
+            ->join('d.user', 'u2');
 
         $qfb = new QueryFilters($qb, $filters);
         $qfb
@@ -58,7 +59,7 @@ class OrderRepository extends EntityRepository{
                 'd.rating as rating',
                 't.name as tariff_name',
                 't.id as tariff_id',
-                '(t.base_price + GREATEST(0, :distance - t.base_dist) * t.dist_cost as price'
+                '(t.base_price + CASE WHEN :distance > t.base_dist THEN (:distance - t.base_dist) ELSE 0 END * t.dist_cost) as price'
             ])
             ->setParameter('distance', $distance)
             ->from(Driver::class, 'd')

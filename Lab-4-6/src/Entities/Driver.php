@@ -31,7 +31,7 @@ class Driver
     #[ORM\Column(name: 'rating', type: 'float', options: ['default' => 0])]
     private float $rating = 0.0;
 
-    #[ORM\ManyToOne(targetEntity: Tariff::class, inversedBy: 'orders')]
+    #[ORM\ManyToOne(targetEntity: Tariff::class, inversedBy: 'drivers')]
     #[ORM\JoinColumn(name: 'tariff_id', referencedColumnName: 'id')]
     private ?Tariff $tariff = null;
 

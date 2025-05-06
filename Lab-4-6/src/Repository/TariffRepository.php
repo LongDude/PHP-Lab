@@ -8,10 +8,10 @@ use Exception;
 class TariffRepository extends EntityRepository {
     public function getFilteredList(array $filters = []): array{
         $qb = $this->createQueryBuilder('t')
-                ->select('t');
+                ->select('t.name', 't.base_price', 't.base_dist', 't.dist_cost');
         $qfb = new QueryFilters($qb, $filters);
-        $qfb->like('name')
-            ->range('base_price');
+        $qfb->like('name', 't.name')
+            ->range('base_price', 't.base_price');
         return $qb->getQuery()->getResult();
     }
 

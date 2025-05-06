@@ -18,9 +18,9 @@ class DriverRepository extends EntityRepository
                 'u.phone',
                 'u.email',
                 'd.intership',
-                'd.carLicense',
-                'd.carBrand',
-                't.name as tariffName'
+                'd.car_license',
+                'd.car_brand',
+                't.name as tariff_name'
             ])
             ->join('d.user', 'u')
             ->leftJoin('d.tariff', 't')
@@ -29,16 +29,24 @@ class DriverRepository extends EntityRepository
     }
 
     public function getFilteredList(array $filters = []): array
-    {
+    {   
         $qb = $this->createQueryBuilder('d')
-            ->select('d', 'u', 't')
+            ->select([
+                'u.name as name',
+                'u.phone',
+                'u.email',
+                'd.intership',
+                'd.car_license',
+                'd.car_brand',
+                't.name as tariff_name'
+            ])
             ->join('d.user', 'u')
             ->leftJoin('d.tariff', 't');
         $qfb = new QueryFilters($qb, $filters);
 
         $qfb->like('name', 'u.name')
-            ->like('phone', 'u.name')
-            ->like('email', 'u.name')
+            ->like('phone', 'u.phone')
+            ->like('email', 'u.email')
             ->exact('car_license', 'd.car_license')
             ->exact('tariff_id', 't.id');
 

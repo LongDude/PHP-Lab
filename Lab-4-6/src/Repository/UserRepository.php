@@ -9,12 +9,12 @@ use Exception;
 class UserRepository extends EntityRepository {
     public function getFilteredList(array $filters = []): array {
         $qb = $this->createQueryBuilder('u')
-        ->select('name', 'phone', 'email', 'role');
+        ->select('u.name', 'u.phone', 'u.email', 'u.role');
 
         $qfb = new QueryFilters($qb, $filters);
-        $qfb->like('name')
-            ->like('phone')
-            ->like('email');
+        $qfb->like('name', 'u.name')
+            ->like('phone', 'u.phone')
+            ->like('email', 'u.email');
         return $qb->getQuery()->getResult();
     }
 

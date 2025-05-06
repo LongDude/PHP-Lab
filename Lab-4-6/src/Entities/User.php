@@ -19,8 +19,8 @@ class User
     #[ORM\Column(type: 'string', length: 100, unique: true)]
     private string $name;
 
-    #[ORM\Column(type: 'string', length: 100, unique: true)]
-    private string $phone;
+    #[ORM\Column(type: 'string', length: 100, unique: true, nullable: true)]
+    private ?string $phone = null;
 
     #[ORM\Column(type: 'string', length: 100, unique: true)]
     private string $email;
@@ -53,7 +53,7 @@ class User
     // Getters
     public function getId(): ?int { return $this->id; }
     public function getName(): string { return $this->name; }
-    public function getPhone(): string { return $this->phone; }
+    public function getPhone(): ?string { return $this->phone; }
     public function getEmail(): string { return $this->email; }
     public function getPassword(): string { return $this->password; }
     public function getRole(): string { return $this->role; }

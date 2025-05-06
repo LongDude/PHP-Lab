@@ -12,7 +12,10 @@ use Doctrine\ORM\ORMSetup;
 use Doctrine\DBAL\DriverManager;
 
 $router = new Router();
-$paths = [__DIR__ . '../src/Entities'];
+$paths = [
+    __DIR__ . '/../src/Entities',
+    __DIR__ . '/../src/Repositories',
+];
 $dbParams = [
     'driver' => 'pdo_mysql',
     'user' => $_ENV['MYSQL_USER'],

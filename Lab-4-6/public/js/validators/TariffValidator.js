@@ -1,53 +1,47 @@
+const nameInput = document.getElementById('name');
+const base_priceInput = document.getElementById('base_price');
+const base_distInput = document.getElementById('base_dist');
+const dist_costInput = document.getElementById('dist_cost');
+const csvFileInput = document.getElementById('csv-file');
+
+var nameValidator = null;
+var base_priceValidator = null;
+var base_distValidator = null;
+var dist_costValidator = null;
+var csvFileValidator  = null;
+
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("form").addEventListener("submit", (event) => onSubmit(event));
-    const nameInput = document.getElementById('name');
-    const base_priceInput = document.getElementById('base_price');
-    const base_distInput = document.getElementById('base_dist');
-    const base_timeInput = document.getElementById('base_time');
-    const dist_costInput = document.getElementById('dist_cost');
-    const time_costInput = document.getElementById('time_cost');
-    const csvFileInput = document.getElementById('csv-file');
     
-    const nameValidator = new FormValidator(
+    nameValidator = new FormValidator(
         nameInput,
         (event) => {
             let val = event.target.value;
-            let m = val.match(/\w{0,20}$/)
+            let m = val.match(/[а-яa-z]{0,20}$/i)
             if (!m) {
                 event.target.value = "";
             } else {
                 event.target.value = m[0];
             }
         },
-        (value) => (/\w{3,20}$/.test(value)),
+        (value) => (/[а-яa-z]{3,20}$/i.test(value)),
     )
-    const base_priceValidator = new FormValidator(
+    base_priceValidator = new FormValidator(
         base_priceInput,
         BasicValidators.posFloatPassiveValidator,
         BasicValidators.posFloatActiveValidator
     )
-    const base_distValidator = new FormValidator(
+    base_distValidator = new FormValidator(
         base_distInput,
         BasicValidators.posFloatPassiveValidator,
         BasicValidators.posFloatActiveValidator
     )
-    const base_timeValidator = new FormValidator(
-        base_timeInput,
-        BasicValidators.posFloatPassiveValidator,
-        BasicValidators.posFloatActiveValidator
-    )
-    const dist_costValidator = new FormValidator(
+    dist_costValidator = new FormValidator(
         dist_costInput,
         BasicValidators.posFloatPassiveValidator,
         BasicValidators.posFloatActiveValidator
     )
-    const time_costValidator = new FormValidator(
-        time_costInput,
-        BasicValidators.posFloatPassiveValidator,
-        BasicValidators.posFloatActiveValidator
-    )
-
-    const csvFileValidator = new CSVValidator(csvFileInput)
+    csvFileValidator = new CSVValidator(csvFileInput)
 })
 
 function onSubmit(event) {
@@ -57,9 +51,7 @@ function onSubmit(event) {
         nameValidator,
         base_priceValidator,
         base_distValidator,
-        base_timeValidator,
         dist_costValidator,
-        time_costValidator,
     ].forEach(validator => {
         isValid &= validator.validate()
     })
