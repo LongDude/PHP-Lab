@@ -14,7 +14,7 @@ use Doctrine\DBAL\DriverManager;
 $router = new Router();
 $paths = [__DIR__ . '../src/Entities'];
 $dbParams = [
-    'driver' => 'mysql',
+    'driver' => 'pdo_mysql',
     'user' => $_ENV['MYSQL_USER'],
     'password' => $_ENV['MYSQL_PASSWORD'],
     'host' => 'db',
