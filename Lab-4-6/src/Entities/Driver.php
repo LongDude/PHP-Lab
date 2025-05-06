@@ -4,6 +4,7 @@ namespace src\Entities;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping\Entity;
 
 /**
  * @ORM\Entity
@@ -12,7 +13,7 @@ use Doctrine\Common\Collections\Collection;
 class Driver {
     /**
      * @ORM\Id
-     * @ORM\GeneratedValue
+     * @ORM\GeneratedValue(strategy="AUTO")
      * @ORM\Column(name="id", type="bigint")
      */
     private $id;
