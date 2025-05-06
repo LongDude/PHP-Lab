@@ -6,13 +6,14 @@ use PDOException;
 use src\Files\BaseUploader;
 
 use src\Entities\User;
+use src\Repository\UserRepository;
 use src\Validators\BaseValidators;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
 class SessionController{
 
-    private $user_rep;
+    private UserRepository $user_rep;
     private Environment $twig;
 
     public function __construct(EntityManager $em)
@@ -68,6 +69,8 @@ class SessionController{
             header("Location: /login");
             exit;
         }
+
+        
         $user = $this->user_rep->findOneBy(array('email' => $_SESSION['email']));
         if (!$user || md5($password) != $user->getPassword()){
             $_SESSION['message'] = "Неправильное имя пользователя или пароль";

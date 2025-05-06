@@ -1,8 +1,11 @@
 <?php
 namespace src\Controllers;
 
+use Doctrine\ORM\EntityManager;
 use src\Files\BaseUploader;
-use src\Models\Tariff;
+
+use src\Entities\Tariff;
+use src\Repository\TariffRepository;
 use src\Validators\TariffValidator;
 use Fawno\FPDF\FawnoFPDF;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -12,12 +15,12 @@ use Twig\Loader\FilesystemLoader;
 
 class TariffController
 {
-    private Tariff $model;
+    private TariffRepository $tariffRepository;
     private Environment $twig;
 
-    public function __construct()
+    public function __construct(EntityManager $em)
     {
-        $this->model = new Tariff();
+        $this->tariffRepository = $em->getRepository(Tariff::class);
         $loader = new FilesystemLoader(__DIR__ . '/../views');
         $this->twig = new Environment($loader);
     }
@@ -25,7 +28,7 @@ class TariffController
     public function getTariffsTable()
     {
         [$filter, $err] = TariffValidator::validateFilter($_GET);
-        $list = $this->model->getListFiltered($filter);
+        $list = $this->tariffRepository->getFilteredList($filter);
         $msg = '';
 
         if ($err !== '') {
@@ -52,13 +55,6 @@ class TariffController
         );
     }
 
-    public function getEntries()
-    {
-        header('Content-type: application/json');
-        $list = $this->model->getEntries();
-        echo json_encode($list);
-    }
-
     public function get_tariff_form()
     {
         echo $this->twig->render(
@@ -79,10 +75,10 @@ class TariffController
         if (isset($_FILES['csv-file']) && $_FILES['csv-file']['error'] === UPLOAD_ERR_OK) {
             $file = $_FILES['csv-file'];
 
-            $validationErrors = BaseUploader::validateCsv($file, Tariff::fields, new TariffValidator());
+            $validationErrors = BaseUploader::validateCsv($file, Tariff::FIELDS, new TariffValidator());
             if ($validationErrors === "") {
                 BaseUploader::saveCsv($file);
-                if ($this->model->importCsv(__DIR__ . "/../Files/Uploads/data.csv")) {
+                if ($this->tariffRepository->importCsv(__DIR__ . "/../Files/Uploads/data.csv")) {
                     $_SESSION['message'] = "File uploaded successfully!\n";
                 } else {
                     $_SESSION['message'] = "Error uploading data\n";
@@ -105,7 +101,7 @@ class TariffController
         $base_dist = trim($_POST['base_dist'] ?? "");
         $dist_cost = trim($_POST['dist_cost'] ?? "");
 
-        $success = $this->model->addTariff(
+        $success = $this->tariffRepository->addTariff(
             $name,
             (float) $base_price,
             (float) $base_dist,

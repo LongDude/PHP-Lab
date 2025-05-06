@@ -1,12 +1,11 @@
 <?php
 
 namespace src\Controllers;
+use Doctrine\ORM\EntityManager;
 use Fawno\FPDF\FawnoFPDF;
-use PDOException;
 use src\Files\BaseUploader;
-use src\Models\User;
-use tFPDF;
-// define('FPDF_FONTPATH', '/var/www/html/public/fonts/');
+use src\Repository\UserRepository;
+use src\Entities\User;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use src\Validators\UserValidator;
@@ -14,12 +13,12 @@ use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
 class UserController{
-    private User $user_model;
+    private UserRepository $userRepository;
     private Environment $twig;
 
-    public function __construct()
+    public function __construct(EntityManager $em)
     {
-        $this->user_model = new User();
+        $this->userRepository = $em->getRepository(User::class);
         $loader = new FilesystemLoader(__DIR__ . '/../views');
         $this->twig = new Environment($loader);
     }
@@ -44,10 +43,10 @@ class UserController{
         if (isset($_FILES['csv-file']) && $_FILES['csv-file']['error'] === UPLOAD_ERR_OK) {
             $file = $_FILES['csv-file'];
 
-            $validationErrors = BaseUploader::validateCsv($file, User::fields, new UserValidator());
+            $validationErrors = BaseUploader::validateCsv($file, User::FIELDS, new UserValidator());
             if ($validationErrors === "") {
                 BaseUploader::saveCsv($file);
-                if ($this->user_model->importCsv(__DIR__ . "/../Files/Uploads/data.csv")) {
+                if ($this->userRepository->importCsv(__DIR__ . "/../Files/Uploads/data.csv")) {
                     $_SESSION['message'] = "File uploaded successfully!\n";
                 } else {
                     $_SESSION['message'] = "Error uploading data\n";
@@ -76,7 +75,7 @@ class UserController{
             exit;
         }
 
-        $success = $this->user_model->addUser(
+        $success = $this->userRepository->addUser(
             $_POST['name'],
             $_POST['phone'],
             $_POST['email'],
@@ -130,8 +129,8 @@ class UserController{
             exit;
         }
 
-        $success = $this->user_model->updateUser(
-            $_SESSION['user_id'],
+        $success = $this->userRepository->updateUser(
+            $this->userRepository->find($_SESSION['user_id']),
             $_POST['name'],
             $_POST['phone'],
             $_POST['email'],
@@ -154,7 +153,7 @@ class UserController{
 
     public function index(){
         [$filter, $err] = UserValidator::validateFilter($_GET);
-        $list = $this->user_model->getListFiltered($filter);
+        $list = $this->userRepository->getFilteredList($filter);
         $msg = '';
 
         if ($err !== '') {

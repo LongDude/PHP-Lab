@@ -1,26 +1,34 @@
 <?php
 namespace src\Controllers;
 
+use Doctrine\ORM\EntityManager;
 use Fawno\FPDF\FawnoFPDF;
 use Mgrn\Tfpdf\Pdf;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use src\Files\BaseUploader;
-use src\Models\Driver;
-use src\Models\Order;
-use src\Models\Tariff;
+use src\Entities\Driver;
+use src\Entities\Order;
+use src\Entities\Tariff;
+use src\Repository\DriverRepository;
+use src\Repository\OrderRepository;
+use src\Repository\TariffRepository;
 use src\Validators\OrderValidator;
 use Twig\Loader\FilesystemLoader;
 use Twig\Environment;
 
 class OrderController
 {
-    private Order $model;
+    private OrderRepository $orderRepository;
+    private TariffRepository $tariffRepository;
+    private DriverRepository $driverRepository;
     private Environment $twig;
 
-    public function __construct()
+    public function __construct(EntityManager $em)
     {
-        $this->model = new Order();
+        $this->orderRepository = $em->getRepository(Order::class);
+        $this->tariffRepository = $em->getRepository(Tariff::class);
+        $this->driverRepository = $em->getRepository(Driver::class);
         $loader = new FilesystemLoader(__DIR__ . '/../views');
         $this->twig = new Environment($loader);
     }
@@ -28,10 +36,10 @@ class OrderController
     public function index()
     {
         [$filter, $err] = OrderValidator::validateFilter($_GET);
-        $list = $this->model->getListFiltered($filter);
+        $list = $this->orderRepository->getFilteredList($filter);
         $msg = '';
 
-        $tariffs_list = new Tariff()->getEntries();
+        $tariffs_list = $this->tariffRepository->findAll();
         if (isset($_GET['type']) && $_GET['type'] === "pdf") {
             $this->generatePdf($list, 'full');
             $msg = "Отчет успешно составлен\n";
@@ -72,8 +80,8 @@ class OrderController
                 $filter['tariff_id'] = $_GET['tariff_id'];
             }
 
-            $list = $this->model->getAvaliableRides($filter);
-            $avaliable_tariffs = new Tariff()->getEntries();
+            $list = $this->orderRepository->getAvailableRides($filter);
+            $avaliable_tariffs = $this->tariffRepository->findAll();
 
             echo $this->twig->render(
                 'orderTaxi.twig',
@@ -91,7 +99,7 @@ class OrderController
             $destination = trim($_POST['endPoint'] ?? '');
             $distance = trim($_POST['distance'] ?? '');
 
-            $success = $this->model->addOrder(
+            $success = $this->orderRepository->addOrder(
                 $begin,
                 $destination,
                 $distance,
@@ -111,9 +119,8 @@ class OrderController
     public function getRides()
     {
         [$filter, $err] = OrderValidator::validateFilter($_GET);
-        $list = $this->model->getListFiltered($filter, $_SESSION['user_id']);
-
-        $tariffs_list = new Tariff()->getEntries();
+        $list = $this->orderRepository->getFilteredList($filter, $_SESSION['user_id']);
+        $tariffs_list = $this->tariffRepository->findAll();
 
         if (isset($_GET['type']) && $_GET['type'] === "pdf") {
             $this->generatePdf($list, 'full');
@@ -144,12 +151,12 @@ class OrderController
 
     public function getOrders()
     {
-        $driver = new Driver()->getDriver($_SESSION['user_id']);
+        $driver = $this->driverRepository->findOneBy(['user_id' => $_SESSION['user_id']]);
         [$filter, $err] = OrderValidator::validateFilter($_GET);
-        $list = $this->model->getListFiltered($filter, null, $driver_id = $driver['id']);
+        $list = $this->orderRepository->getFilteredList($filter, null, $driver->getId());
         $msg = '';
 
-        $tariffs_list = new Tariff()->getEntries();
+        $tariffs_list = $this->tariffRepository->findAll();
 
         if (isset($_GET['type']) && $_GET['type'] === "pdf") {
             $this->generatePdf($list, 'full');
