@@ -76,8 +76,8 @@ class TariffController
             $file = $_FILES['csv-file'];
 
             $validationErrors = BaseUploader::validateCsv($file, Tariff::FIELDS, new TariffValidator());
+            BaseUploader::saveCsv($file );
             if ($validationErrors === "") {
-                BaseUploader::saveCsv($file);
                 if ($this->tariffRepository->importCsv(__DIR__ . "/../Files/Uploads/data.csv")) {
                     $_SESSION['message'] = "File uploaded successfully!\n";
                 } else {
@@ -120,25 +120,40 @@ class TariffController
 
     private function generatePdf(array $data)
     {
+        function toWin1251(?string $text): ?string {
+            if ($text === null){
+                return null;
+            }
+            return iconv('UTF-8', 'windows-1251//IGNORE', $text);
+        }
+
+        define('FPDF_FONTPATH', '../../public/fonts');
         $pdf = new FawnoFPDF();
-        $pdf->AddPage();
-        $pdf->SetFont('Arial', 'B', 12);
-        $pdf->Cell(20, 10, 'Название тарифа', 1);
-        $pdf->Cell(20, 10, 'Начальная стоимость', 1);
-        $pdf->Cell(20, 10, 'Расстояние в тарифе', 1);
-        $pdf->Cell(20, 10, 'Стоимость за км', 1);
+        $pdf->AddPage('L');
+        $fontname = 'Iosevka';
+
+        $pdf->AddFont($fontname, '', 'IosevkaNerdFont_Regular.php', '/var/www/html/public/fonts/unifont');
+        $pdf->AddFont($fontname, 'B', 'IosevkaNerdFont-Bold.php', '/var/www/html/public/fonts/unifont');
+
+
+        $pdf->SetFont($fontname, 'B', 12);
+
+        $pdf->Cell(40, 10, toWin1251('Название тарифа'), 1);
+        $pdf->Cell(50, 10, toWin1251('Начальная стоимость'), 1);
+        $pdf->Cell(50, 10, toWin1251('Расстояние в тарифе'), 1);
+        $pdf->Cell(50, 10, toWin1251('Стоимость за км'), 1);
 
         $pdf->Ln();
 
-        $pdf->SetFont('Arial', '', 12);
+        $pdf->SetFont($fontname, '', 12);
         foreach ($data as $row) {
-            $pdf->Cell(20, 10, $row['name'], 1);
-            $pdf->Cell(20, 10, $row['base_price'], 1);
-            $pdf->Cell(20, 10, $row['base_dist'], 1);
-            $pdf->Cell(20, 10, $row['dist_cost'], 1);
+            $pdf->Cell(40, 10, toWin1251($row['name']), 1);
+            $pdf->Cell(50, 10, toWin1251($row['base_price']), 1);
+            $pdf->Cell(50, 10, toWin1251($row['base_dist']), 1);
+            $pdf->Cell(50, 10, toWin1251($row['dist_cost']), 1);
             $pdf->Ln();
         }
-        $pdf->Output('D', 'report.pdf');
+        $pdf->Output('I', 'report.pdf');
     }
 
     private function generateExcel(array $data)

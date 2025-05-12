@@ -35,7 +35,7 @@ class OrderRepository extends EntityRepository{
         $qfb
         ->range('orderedAt')
         ->like('name', 'driver_name')
-        ->exact('tariff_id', 'o.tariff_id');
+        ->exact('tariff', 'o.tariff_id');
 
         if ($userId !== null) {
             $qb->andWhere('o.user = :user_id')
@@ -47,7 +47,11 @@ class OrderRepository extends EntityRepository{
                ->setParameter('driver_id', $driverId);
         }
 
-        return $qb->getQuery()->getArrayResult();
+        $res = $qb->getQuery()->getArrayResult();
+        foreach($res as $k=>$r){
+            $res[$k]['orderedAt'] = $r['orderedAt']->format('Y-m-d H:i:s');
+        }
+        return $res;
     }
 
     public function getAvailableRides(array $filters = [], $distance = 0): array

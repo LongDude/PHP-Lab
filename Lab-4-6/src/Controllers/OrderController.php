@@ -48,6 +48,7 @@ class OrderController
             $msg = "Отчет успешно составлен\n";
         }
 
+
         echo $this->twig->render(
             'orders.twig',
             [
@@ -131,9 +132,7 @@ class OrderController
             $msg = "Отчет успешно составлен\n";
         }
 
-        foreach($list as $k=>$r){
-            $list[$k]['orderedAt'] = $r['orderedAt']->format('Y-m-d H:i:s');
-        }
+
         echo $this->twig->render(
             'orders.twig',
             [
@@ -189,60 +188,64 @@ class OrderController
 
     private function generatePdf(array $data, string $reportType)
     {
-        function toWin1251(?string $text): ?string {
-            if ($text === null){
+        function toWin1251(?string $text): ?string
+        {
+            if ($text === null) {
                 return null;
             }
             return iconv('UTF-8', 'windows-1251//IGNORE', $text);
         }
 
-        define('FPDF_FONTPATH','../../public/fonts');
+        define('FPDF_FONTPATH', '../../public/fonts');
         $pdf = new FawnoFPDF();
         $pdf->AddPage('L');
         $fontname = 'Iosevka';
-        
+
 
         $pdf->AddFont($fontname, '', 'IosevkaNerdFont_Regular.php', '/var/www/html/public/fonts/unifont');
         $pdf->AddFont($fontname, 'B', 'IosevkaNerdFont-Bold.php', '/var/www/html/public/fonts/unifont');
 
         // $pdf->SetFont('DejaVuSerif.ttf', 'B', 12);
-        $pdf->SetFont($fontname, 'B', 12);
-        $pdf->Cell(20, 10, 'Начальная точка', 1);
-        $pdf->Cell(20, 10, 'Конечная точка', 1);
-        $pdf->Cell(20, 10, 'Расстояние', 1);
-        $pdf->Cell(20, 10, 'Время заказа', 1);
+        $pdf->SetFont($fontname, 'B', 8);
+        if ($reportType != 'history') {
+            $pdf->Cell(20, 5, toWin1251('Телефон'), 1);
+        }
+        $pdf->Cell(30, 5, toWin1251('Начальная точка'), 1);
+        $pdf->Cell(30, 5, toWin1251('Конечная точка'), 1);
+        $pdf->Cell(20, 5, toWin1251('Расстояние'), 1);
+        $pdf->Cell(40, 5, toWin1251('Время заказа'), 1);
 
         if ($reportType != 'rides') {
-            $pdf->Cell(20, 10, 'Имя водителя', 1);
+            $pdf->Cell(50, 5, toWin1251('Имя водителя'), 1);
         }
         if ($reportType == 'full') {
-            $pdf->Cell(20, 10, 'Имя клиента', 1);
+            $pdf->Cell(50, 5, toWin1251('Имя клиента'), 1);
         }
 
-        $pdf->Cell(20, 10, 'Тарифф', 1);
-        $pdf->Cell(20, 10, 'Стоимость', 1);
+        $pdf->Cell(20, 5, toWin1251('Тарифф'), 1);
+        $pdf->Cell(20, 5, toWin1251('Стоимость'), 1);
 
         $pdf->Ln();
-        
-        $pdf->SetFont($fontname, '', 12);
+
+        $pdf->SetFont($fontname, '', 8);
         foreach ($data as $row) {
             if ($reportType != 'history') {
-                $pdf->Cell(20, 10, $row['phone'], 1);
+                $pdf->Cell(20, 5, toWin1251($row['phone']), 1);
             }
-            $pdf->Cell(20, 10, $row['from_loc'], 1);
-            $pdf->Cell(20, 10, $row['dest_loc'], 1);
-            $pdf->Cell(20, 10, $row['distance'], 1);
-            $pdf->Cell(20, 10, $row['orderedAt'], 1);
+            $pdf->Cell(30, 5, toWin1251($row['from_loc']), 1);
+            $pdf->Cell(30, 5, toWin1251($row['dest_loc']), 1);
+            $pdf->Cell(20, 5, toWin1251($row['distance']), 1);
+            $pdf->Cell(40, 5, toWin1251($row['orderedAt']), 1);
 
             if ($reportType != 'rides') {
-                $pdf->Cell(20, 10, $row['driver_name'], 1);
+                $pdf->Cell(50, 5, toWin1251($row['driver_name']), 1);
             }
             if ($reportType == 'full') {
-                $pdf->Cell(20, 10, $row['user_name'], 1);
+                $pdf->Cell(50, 5, toWin1251($row['user_name']), 1);
             }
 
-            $pdf->Cell(20, 10, $row['tariff_name'], 1);
-            $pdf->Cell(20, 10, $row['price'], 1);
+            $pdf->Cell(20, 5, toWin1251($row['tariff_name']), 1);
+            $pdf->Cell(20, 5, toWin1251($row['price']), 1);
             $pdf->Ln();
         }
         $pdf->Output('I', 'report.pdf');

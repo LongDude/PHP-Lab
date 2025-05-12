@@ -304,30 +304,30 @@ class DriverController
         $pdf->AddFont($fontname, 'B', 'IosevkaNerdFont-Bold.php', '/var/www/html/public/fonts/unifont');
 
         // $pdf->SetFont('DejaVuSerif.ttf', 'B', 12);
-        $pdf->SetFont($fontname, 'B', 12);
-        $pdf->Cell(60, 10, toWin1251('Имя'), 1);
-        $pdf->Cell(45, 10, toWin1251('Номер телефона'), 1);
-        $pdf->Cell(60, 10, toWin1251('Почта'), 1);
-        $pdf->Cell(15, 10, toWin1251('Стаж'), 1);
-        $pdf->Cell(30, 10, toWin1251("Лицензионный номер"), 1);
-        $pdf->Cell(60, 10, toWin1251('Марка машины'), 1);
-        $pdf->Cell(60, 10, toWin1251('Название тариффа'), 1);
+        $pdf->SetFont($fontname, 'B', 10);
+        $pdf->Cell(60, 8, toWin1251('Имя'), 1);
+        $pdf->Cell(35, 8, toWin1251('Номер телефона'), 1);
+        $pdf->Cell(60, 8, toWin1251('Почта'), 1);
+        $pdf->Cell(10, 8, toWin1251('Стаж'), 1);
+        $pdf->Cell(30, 8, toWin1251("Лицензионный номер"), 1);
+        $pdf->Cell(50, 8, toWin1251('Марка машины'), 1);
+        $pdf->Cell(30, 8, toWin1251('Название тариффа'), 1);
 
         $pdf->Ln();
 
-        $pdf->SetFont($fontname, 'B', 12);
+        $pdf->SetFont($fontname, '', 10);
 
         foreach ($data as $row) {
-            $pdf->Cell(60, 10, toWin1251($row['name']), 1);
-            $pdf->Cell(45, 10, toWin1251($row['phone']), 1);
-            $pdf->Cell(60, 10, toWin1251($row['email']), 1);
-            $pdf->Cell(15, 10, toWin1251($row['intership']), 1);
-            $pdf->Cell(30, 10, toWin1251($row['car_license']), 1);
-            $pdf->Cell(60, 10, toWin1251($row['car_brand']), 1);
-            $pdf->Cell(60, 10, toWin1251($row['tariff_name']), 1);
+            $pdf->Cell(60, 8, toWin1251($row['name']), 1);
+            $pdf->Cell(35, 8, toWin1251($row['phone']), 1);
+            $pdf->Cell(60, 8, toWin1251($row['email']), 1);
+            $pdf->Cell(10, 8, toWin1251($row['intership']), 1);
+            $pdf->Cell(30, 8, toWin1251($row['car_license']), 1);
+            $pdf->Cell(50, 8, toWin1251($row['car_brand']), 1);
+            $pdf->Cell(30, 8, toWin1251($row['tariff_name']), 1);
             $pdf->Ln();
         }
-        $pdf->Output('D', 'report.pdf');
+        $pdf->Output('I', 'report.pdf');
     }
 
     private function generateExcel(array $data)

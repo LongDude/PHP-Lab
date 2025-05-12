@@ -67,14 +67,16 @@ class TariffRepository extends EntityRepository {
             
             try {
                 while (($data = fgetcsv($handle))) {
-                    $tariff = $this->findOneBy(['name' => $data[0]]) ?? new Tariff();
+                    $tariff = $this->findOneBy(['name' => $data[0]]);
+                    if (!$tariff){
+                        $tariff = new Tariff();
+                        $em->persist($tariff);
+                    }
                     $tariff
                     ->setName($data[0])
                     ->setBasePrice($data[1])
                     ->setBaseDist($data[2])
                     ->setDistCost($data[3]);
-                    
-                    $em->persist($tariff);
                 }
                 
                 $em->flush();

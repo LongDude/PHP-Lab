@@ -40,9 +40,10 @@
             $path=parse_url($_SERVER['REQUEST_URI'],PHP_URL_PATH);
 
             // Страница не найдена
-            if (!isset($this->routes[$method][$path])){
+            if (empty($this->routes[$method][$path])){
                 http_response_code(404);
                 require __DIR__ . "/404.html";
+                exit;
             }
             $route = $this->routes[$method][$path];
 

@@ -215,7 +215,7 @@ class UserController{
             $pdf->Cell(50, 10, toWin1251($row['role']), 1);
             $pdf->Ln();
         }
-        $pdf->Output('D', 'report.pdf');
+        $pdf->Output('I', 'report.pdf');
     }
 
     private function generateExcel(array $data)
