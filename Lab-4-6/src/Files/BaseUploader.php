@@ -5,8 +5,9 @@ use src\Validators\ModelValidator;
 
 class BaseUploader
 {
-    public static function validateCsv(string $file, array $fields, ModelValidator $modelValidator): string
+    public static function validateCsv(array $file, array $fields, ModelValidator $modelValidator): string
     {
+        
         $err = '';
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
         finfo_close($finfo);
@@ -25,7 +26,7 @@ class BaseUploader
         }
 
         $count = 0;
-        while (($row = fgetcsv($filehandle, 1000, '.')) !== false) {
+        while (($row = fgetcsv($filehandle, 1000, ';', '\\', '')) !== false) {
             $count++;
 
             if (count($row) !== count($fields)) {
